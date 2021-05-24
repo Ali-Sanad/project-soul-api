@@ -1,0 +1,4 @@
+{
+  "mongoURI": "mongodb+srv://ali:123@soul-db.m0i0a.mongodb.net/Soul-DB?retryWrites=true&w=majority",
+  "jwtSecret": "mysecrettoken"
+}
