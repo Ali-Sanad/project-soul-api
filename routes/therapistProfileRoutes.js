@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const router = Router();
-//const therapistAuthController = require("../controller/therapistAuthController");
+
 const therapistProfileController = require("../controller/therapistProfileController");
 const {
   requireAuth,
