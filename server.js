@@ -3,7 +3,8 @@ const connectDB = require("./config/db");
 const cors = require("cors");
 const path = require("path");
 const app = express();
-
+const therapistAuthRoutes = require("./routes/therapistAuthRoutes");
+const therapistProfileRoutes = require("./routes/therapistProfileRoutes");
 //connect database
 connectDB();
 
@@ -22,6 +23,8 @@ app.use("/api/users", require("./routes/users"));
 app.use("/api/admins", require("./routes/admins"));
 app.use("/api/user-profile", require("./routes/user-profile"));
 app.use("/api/article", require("./routes/Article"));
+app.use("/api/therapist", therapistAuthRoutes);
+app.use("/api/therapistProfile", therapistProfileRoutes);
 
 //serve static assets in production
 // if (process.env.NODE_ENV === 'production') {
