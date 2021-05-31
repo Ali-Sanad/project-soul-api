@@ -39,12 +39,8 @@ const checkUser = (req, res, next) => {
         // next();
         //res.redirect("/login");
       } else {
-        //   console.log(decodedToken);
         req.therapist = decoded.therapist;
-        //let therapist = await Therapist.findById(decodedToken.id);
 
-        //req.therapist = decoded.therapist;
-        //res.locals.therapist = therapist;
         next();
       }
     });

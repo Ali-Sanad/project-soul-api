@@ -40,11 +40,6 @@ const TherapistSchema = new mongoose.Schema({
   },
   passwordChangedAt: Date,
 
-  // therapist: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'therapist',
-  // },
-
   summary: {
     type: String,
   },

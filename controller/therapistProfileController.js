@@ -7,31 +7,6 @@ const Therapist = require('../models/TherapistModel');
 //const config = require("config");
 // const {cloudinary} = require('../utiles/cloudinary');
 
-// function currentTherpiest(req) {
-//   const token = req.cookies.jwt;
-//   //check web token exist and valid
-//   if (token) {
-//     jwt.verify(token, "mySecretJWT", (err, decodedToken) => {
-//       if (err) {
-//         console.log(err.message);
-//         //res.redirect("/api/therapist/login");
-//         //res.redirect("/login");
-//         return null;
-//       } else {
-//         console.log(decodedToken);
-//         let therapist = await Therapist.findById(decodedToken.id);
-//         return therapist;
-//         //next();
-//       }
-//     });
-//   } else {
-//     console.log("no jwt");
-//     return null;
-//     //res.redirect("/login");
-//     //res.redirect("/api/therapist/login");
-//   }
-//   //next();
-// }
 module.exports.updateExperince = async (req, res, next) => {
   const {title, location, from, to} = req.body;
 
@@ -93,7 +68,7 @@ module.exports.updateEducation = async (req, res) => {
 module.exports.deleteEducation = async (req, res) => {
   const edu_id = req.params.edu_id;
   console.log(edu_id);
-  //console.log(req.therapistId);
+
   try {
     const therapist = await Therapist.findOne({_id: req.therapist._id});
 
@@ -114,9 +89,6 @@ module.exports.deleteEducation = async (req, res) => {
 };
 
 module.exports.socialMediaData = async (req, res) => {
-  // destructure the request
-  // Build socialFields object
-
   try {
     // Using upsert option (creates new doc if no match is found):
     let therapist = await Therapist.findByIdAndUpdate(req.therapist._id, {
@@ -128,7 +100,6 @@ module.exports.socialMediaData = async (req, res) => {
     res.status(200).json({
       status: 'sucscess',
     });
-    // return res.json(therapist);
   } catch (err) {
     console.error('errrmee', err.message);
     res.status(500).json({err: 'Server Error'});

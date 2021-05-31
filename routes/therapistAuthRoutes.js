@@ -17,38 +17,4 @@ router.get("/:id", therapistAuthController.getOneTherapist);
 router.patch("/updatatherapist/:id", therapistAuthController.updataTherapist);
 router.delete("/deletetherapist/:id", therapistAuthController.deleteTherapist);
 
-// router.put(
-//   "/updateExperince",
-//   requireAuth,
-//   therapistProfileController.updateExperince
-// );
-// router.delete(
-//   "/deleteExperience/:exp_id",
-//   requireAuth,
-
-//   therapistProfileController.deleteExperience
-// );
-// router.put(
-//   "/updateEducation",
-//   requireAuth,
-//   therapistProfileController.updateEducation
-// );
-// router.delete(
-//   "/deleteEducation/:edu_id",
-//   requireAuth,
-
-//   therapistProfileController.deleteEducation
-// );
-// router.post(
-//   "/addSocialMedia",
-//   requireAuth,
-
-//   therapistProfileController.socialMediaData
-// );
-
-// router.get(
-//   "/profile/myprofile",
-//   requireAuth,
-//   therapistProfileController.getmyprofile
-// );
 module.exports = router;
