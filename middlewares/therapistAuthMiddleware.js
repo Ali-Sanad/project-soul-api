@@ -1,12 +1,12 @@
-const jwt = require("jsonwebtoken");
-const Therapist = require("../models/TherapistModel");
+const jwt = require('jsonwebtoken');
+const Therapist = require('../models/TherapistModel');
 const requireAuth = (req, res, next) => {
   //const token = req.cookies.jwt;
-  const token = req.header("Authorization");
-  console.log("tokennnn", token);
+  const token = req.header('Authorization');
+  console.log('tokennnn', token);
   //check web token exist and valid
   if (token) {
-    jwt.verify(token, "mySecretJWT", (err, decoded) => {
+    jwt.verify(token, 'mySecretJWT', (err, decoded) => {
       if (err) {
         console.log(err.message);
         //  res.redirect("/api/therapist/login");
@@ -19,25 +19,24 @@ const requireAuth = (req, res, next) => {
       }
     });
   } else {
-    console.log("no jwt");
+    console.log('no jwt');
     //res.redirect("/login");
     //  res.redirect("/api/therapist/login");
   }
-  // next();
 };
 
 //check user
 const checkUser = (req, res, next) => {
-  const token = req.header("Authorization");
-  console.log("token in header", token);
+  const token = req.header('Authorization');
+  console.log('token in header', token);
   // const token = req.cookies.jwt;
   if (token) {
-    jwt.verify(token, "mySecretJWT", async (err, decoded) => {
+    jwt.verify(token, 'mySecretJWT', async (err, decoded) => {
       if (err) {
         console.log(err.message);
         // res.locals.therapist = null;
 
-        next();
+        // next();
         //res.redirect("/login");
       } else {
         //   console.log(decodedToken);
@@ -51,7 +50,7 @@ const checkUser = (req, res, next) => {
     });
   } else {
     res.locals.therapist = null;
-    next();
+    // next();
   }
 };
-module.exports = { requireAuth, checkUser };
+module.exports = {requireAuth, checkUser};
