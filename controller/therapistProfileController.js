@@ -3,9 +3,8 @@
 //@descrption PUT therapist experiencs
 //@ access private
 //const jwt = require("jsonwebtoken");
+// const config = require('config');
 const Therapist = require('../models/TherapistModel');
-//const config = require("config");
-// const {cloudinary} = require('../utiles/cloudinary');
 
 module.exports.updateExperince = async (req, res, next) => {
   const {title, location, from, to} = req.body;
@@ -122,35 +121,5 @@ module.exports.getmyprofile = async (req, res) => {
     console.log(123);
     console.error('err.mess', err.message);
     res.status(500).json({err});
-  }
-};
-
-module.exports.uploadImg = async (req, res) => {
-  const fileStr = req.body.data;
-  console.log(fileStr);
-  const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
-    upload_preset: 'soul',
-  });
-  console.log(uploadedResponse);
-  console.log(req.body.data);
-
-  let url = '';
-  if (!req.body.data) {
-    url = '';
-  } else {
-    url = uploadedResponse.secure_url;
-  }
-
-  try {
-    const therapist = await Therapist.findOneAndUpdate(
-      {_id: req.therapist._id},
-      {therapist_image_url: url},
-      {new: true}
-    );
-
-    res.status(200).json(therapist);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
   }
 };

@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const ArticleSchema = new mongoose.Schema({
   therapist: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "therapist",
+    ref: 'therapist',
   },
   title: {
     type: String,
@@ -15,9 +15,11 @@ const ArticleSchema = new mongoose.Schema({
   },
   ArticleImg: {
     type: String,
+    default: '',
   },
   therapistImg: {
     type: String,
+    default: '',
   },
 
   name: {
@@ -30,5 +32,5 @@ const ArticleSchema = new mongoose.Schema({
   },
 });
 
-const Article = mongoose.model("Article", ArticleSchema);
+const Article = mongoose.model('Article', ArticleSchema);
 module.exports = Article;

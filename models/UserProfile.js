@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const ProfileSchema = new mongoose.Schema(
+const UserProfileSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,32 +19,14 @@ const ProfileSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    sessions: [
+    appointments: [
       {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'users',
-        },
-        doctor: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'doctors',
-        },
-        from: {
-          type: Date,
-        },
-        to: {
-          type: Date,
-        },
-        fees: {
-          type: Number,
-        },
-        duration: {
-          type: Number,
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'appointment',
       },
     ],
   },
   {timestamps: true}
 );
 
-module.exports = mongoose.model('profile', ProfileSchema);
+module.exports = mongoose.model('user-profile', UserProfileSchema);

@@ -2,40 +2,41 @@ const {Router} = require('express');
 const router = Router();
 //const therapistAuthController = require("../controller/therapistAuthController");
 const therapistProfileController = require('../controller/therapistProfileController');
-const {
-  requireAuth,
-  checkUser,
-} = require('../middlewares/therapistAuthMiddleware');
+const {therapistAuth} = require('../middlewares/therapistAuthMiddleware');
 
 router.put(
   '/updateExperince',
-  requireAuth,
+  therapistAuth,
   therapistProfileController.updateExperince
 );
 router.delete(
   '/deleteExperience/:exp_id',
-  requireAuth,
+  therapistAuth,
 
   therapistProfileController.deleteExperience
 );
 router.put(
   '/updateEducation',
-  requireAuth,
+  therapistAuth,
   therapistProfileController.updateEducation
 );
 router.delete(
   '/deleteEducation/:edu_id',
-  requireAuth,
+  therapistAuth,
 
   therapistProfileController.deleteEducation
 );
 router.post(
   '/addSocialMedia',
-  requireAuth,
+  therapistAuth,
 
   therapistProfileController.socialMediaData
 );
 
-router.get('/myprofile', requireAuth, therapistProfileController.getmyprofile);
-router.post('/uploadImg', requireAuth, therapistProfileController.uploadImg);
+router.get(
+  '/myprofile',
+  therapistAuth,
+  therapistProfileController.getmyprofile
+);
+
 module.exports = router;

@@ -1,3 +1,4 @@
 /node_modules
 # /config/default.json
-#after makeing this rep public i will remove the config file
+#/.env
+#after makeing this rep public i will ignore the config  and .env files
