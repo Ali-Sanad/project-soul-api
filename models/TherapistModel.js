@@ -1,25 +1,26 @@
-const mongoose = require('mongoose');
-const bycrpt = require('bcryptjs');
-const validator = require('validator');
+const crypto = require("crypto");
+const mongoose = require("mongoose");
+const bycrpt = require("bcryptjs");
+const validator = require("validator");
 const TherapistSchema = new mongoose.Schema({
   fname: {
     type: String,
-    required: [true, 'enter first name'],
+    required: [true, "enter first name"],
   },
   lname: {
     type: String,
-    required: [true, 'enter last name'],
+    required: [true, "enter last name"],
   },
   email: {
     type: String,
-    required: [true, 'enter email'],
+    required: [true, "enter email"],
     unique: true,
     lowercase: true,
-    validate: [validator.isEmail, 'please enter valid email'],
+    validate: [validator.isEmail, "please enter valid email"],
   },
   password: {
     type: String,
-    required: [true, 'enter password'],
+    required: [true, "enter password"],
 
     select: false,
   },
@@ -31,9 +32,38 @@ const TherapistSchema = new mongoose.Schema({
       validator: function (el) {
         return el === this.password;
       },
-      message: 'password are not the same..',
+      message: "password are not the same..",
     },
   },
+  passwordCgangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  //therapistSessions :[{sessionDate:Date,hours:[from :nubmer, to:number ,isBooked:bool}]]
+  therspistSessions: [
+    {
+      day: {
+        type: Date,
+      },
+      hours: [
+        {
+          from: {
+            type: Number,
+            min: 1,
+            max: 24,
+          },
+          to: {
+            type: Number,
+            min: 1,
+            max: 24,
+          },
+          isBooked: {
+            type: Boolean,
+            default: false,
+          },
+        },
+      ],
+    },
+  ],
   isAccepted: {
     type: Boolean,
     default: false,
@@ -43,9 +73,9 @@ const TherapistSchema = new mongoose.Schema({
   summary: {
     type: String,
   },
-  therapistImg: {
+  therapist_image_url: {
+    //image
     type: String,
-    default: '',
   },
 
   licenseOfOrganization: {
@@ -130,18 +160,12 @@ const TherapistSchema = new mongoose.Schema({
       type: String,
     },
   },
-  appointments: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'appointment',
-    },
-  ],
 });
 
-TherapistSchema.pre('save', async function (next) {
+TherapistSchema.pre("save", async function (next) {
   const salt = await bycrpt.genSalt();
   //only run if password modified
-  if (!this.isModified('password')) return next();
+  if (!this.isModified("password")) return next();
   //hashing bycript with cost of 12
   this.password = await bycrpt.hash(this.password, salt); //defult 10
   this.confirmPassword = undefined;
@@ -158,7 +182,7 @@ TherapistSchema.methods.correctPassword = async function (
 };
 
 TherapistSchema.statics.login = async function (email, password) {
-  const therapist = await this.findOne({email}).select('+password');
+  const therapist = await this.findOne({ email }).select("+password");
   if (therapist) {
     console.log(therapist);
     if (therapist.isAccepted) {
@@ -166,10 +190,28 @@ TherapistSchema.statics.login = async function (email, password) {
       if (auth) {
         return therapist;
       }
-      throw Error('incorrect email or password ');
+      throw Error("incorrect email or password ");
     }
-    throw Error('you are not allowed to log in now');
+    throw Error("you are not allowed to log in now");
   }
-  throw Error('incorrect email or password');
+  throw Error("incorrect email or password");
 };
-module.exports = mongoose.model('therapist', TherapistSchema);
+TherapistSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  console.log("rest", resetToken, "passwordToekn", this.passwordResetToken);
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
+TherapistSchema.pre("save", function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+
+  this.passwordCgangedAt = Date.now() - 1000;
+  next();
+});
+const Therapist = mongoose.model("Therapist", TherapistSchema);
+module.exports = Therapist;
