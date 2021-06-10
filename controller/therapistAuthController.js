@@ -25,12 +25,29 @@ const handleErrors = (err) => {
   if (err.message.includes("incorrect email or password")) {
     errors.err = "incorrect email or password";
   }
+  if (err.message.includes("password are not the same")) {
+    errors.err = "password are not the same";
+  }
+  if (err.message.includes("token is invaled or has expired")) {
+    errors.err = "token is invaled or has expired";
+  }
+  if (err.message.includes("there is no user with email address")) {
+    errors.err = "there is no user with email address";
+  }
+  if (err.message.includes("password are not the same")) {
+    errors.err = "password are not the same";
+  }
+  if (err.message.includes("Your current password is wrong")) {
+    errors.err = "Your current password is wrong";
+  }
 
   //validation errors
   if (err.message.includes("Therapist validation failed")) {
     Object.values(err.errors).forEach(({ properties }) => {
       errors[properties.path] = properties.message;
     });
+  } else {
+    errors.err = err.message;
   }
 
   return errors;
@@ -58,7 +75,14 @@ module.exports.signup_post = async (req, res) => {
     });
     const token = createToken(therapist._id);
     console.log("token", token);
-    sendEmail();
+
+    const message = "please verfiy ypur account ";
+    const options = {
+      email: req.body.email,
+      subject: "verify your account",
+      message,
+    };
+    await sendEmail(options);
     res.status(201).json({ token });
   } catch (err) {
     console.log("catch");
@@ -79,7 +103,7 @@ module.exports.login_post = async (req, res) => {
     //const errors = handleErrors(err);
     console.log("catch");
     const errors = handleErrors(err);
-    // // console.log(err);
+    console.log(err);
     res.status(400).json({ errors });
   }
 };
@@ -91,7 +115,7 @@ module.exports.forgotPassword = async (req, res) => {
     //get user baset on posted email
     const therapist = await Therapist.findOne({ email: req.body.email });
     if (!therapist) {
-      res.status(404).json({ err: "there is no user with email address " });
+      throw Error("there is no user with email address");
     }
     //generateToken
     const resetToken = therapist.createPasswordResetToken();
@@ -114,13 +138,15 @@ module.exports.forgotPassword = async (req, res) => {
 
     res.status(200).json({
       status: "sucss",
-      message: "token sent to email",
+      message,
     });
   } catch (err) {
     console.log("errr", err);
     // therapist.passwordResetToken = undefined;
     //therapist.passwordResetExpires = undefined;
-    res.status(400).json({ err });
+    const errors = handleErrors(err);
+    // console.log(err);
+    res.status(400).json({ errors });
   }
 };
 
@@ -138,7 +164,8 @@ module.exports.resetPassword = async (req, res) => {
     });
     //if token has not expires and ther ie a user  set new password
     if (!therapist) {
-      res.status(400).json({ err: "token is invaled or has expired" });
+      throw Error("token is invaled or has expired");
+      // res.status(400).json({ err: "token is invaled or has expired" });
     }
     therapist.password = req.body.password;
     therapist.confirmPassword = req.body.confirmPassword;
@@ -149,9 +176,44 @@ module.exports.resetPassword = async (req, res) => {
     //log ther usrt in send jwt
 
     const token = createToken(therapist._id);
-    res.status(200).json({ therapist });
+    res.status(200).json({ token });
   } catch (err) {
-    res.status(400).json({ err });
+    const errors = handleErrors(err);
+
+    res.status(400).json({ errors, err });
+  }
+};
+
+module.exports.updatePassword = async (req, res) => {
+  const { password, confirmPassword, currentPassword } = req.body;
+  //get user
+  try {
+    const therapist = await Therapist.findById(req.therapistId).select(
+      "+password"
+    );
+    //check if current pass is correct
+    if (
+      !(await therapist.correctPassword(
+        req.body.currentPassword,
+        therapist.password
+      ))
+    ) {
+      throw Error("Your current password is wrong", 401);
+      //if correct
+    }
+    therapist.password = req.body.password;
+    therapist.confirmPassword = req.body.confirmPassword;
+    await therapist.save();
+    //log in password send jwt
+    const token = createToken(therapist._id);
+    res.status(200).json({
+      status: "sucess",
+      token,
+    });
+  } catch (err) {
+    const errors = handleErrors(err);
+    // console.log(err);
+    res.status(400).json({ errors });
   }
 };
 module.exports.getAllTherapists = async (req, res) => {

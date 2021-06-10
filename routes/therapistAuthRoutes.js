@@ -11,6 +11,12 @@ router.get("/logout", therapistAuthController.logout_get);
 
 router.post("/forgotpassword", therapistAuthController.forgotPassword);
 router.patch("/resetpassword/:token", therapistAuthController.resetPassword);
+router.patch(
+  "/updatemypassword",
+  therapistAuth,
+  therapistAuthController.updatePassword
+);
+
 router.get("/", therapistAuthController.getAllTherapists);
 router.get("/:id", therapistAuthController.getOneTherapist);
 router.patch("/updatatherapist/:id", therapistAuthController.updataTherapist);

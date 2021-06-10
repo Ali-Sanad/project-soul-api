@@ -1,18 +1,20 @@
+require("dotenv").config();
+
 const nodemailer = require("nodemailer");
 
-const email = () => {
+const email = (option) => {
   const transporter = nodemailer.createTransport({
     service: "hotmail",
     auth: {
-      user: "yasminfathyiti@outlook.com",
-      pass: "Yasmin123",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     },
   });
   const options = {
-    from: "yasminfathyiti@outlook.com",
-    to: "yasminfathy630@gmail.com",
-    subject: "Hii subject",
-    text: "hii text",
+    from: process.env.EMAIL_USER,
+    to: option.to,
+    subject: option.subject,
+    text: option.message,
     // text:htmlToText.fromString(html);
   };
   transporter.sendMail(options, function (error, info) {
