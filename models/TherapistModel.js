@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bycrpt = require('bcryptjs');
 const validator = require('validator');
@@ -34,6 +35,35 @@ const TherapistSchema = new mongoose.Schema({
       message: 'password are not the same..',
     },
   },
+  passwordCgangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  //therapistSessions :[{sessionDate:Date,hours:[from :nubmer, to:number ,isBooked:bool}]]
+  therspistSessions: [
+    {
+      day: {
+        type: Date,
+      },
+      hours: [
+        {
+          from: {
+            type: Number,
+            min: 1,
+            max: 24,
+          },
+          to: {
+            type: Number,
+            min: 1,
+            max: 24,
+          },
+          isBooked: {
+            type: Boolean,
+            default: false,
+          },
+        },
+      ],
+    },
+  ],
   isAccepted: {
     type: Boolean,
     default: false,
@@ -43,9 +73,9 @@ const TherapistSchema = new mongoose.Schema({
   summary: {
     type: String,
   },
-  therapistImg: {
+  therapist_image_url: {
+    //image
     type: String,
-    default: '',
   },
 
   licenseOfOrganization: {
@@ -172,4 +202,22 @@ TherapistSchema.statics.login = async function (email, password) {
   }
   throw Error('incorrect email or password');
 };
-module.exports = mongoose.model('therapist', TherapistSchema);
+TherapistSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  console.log('rest', resetToken, 'passwordToekn', this.passwordResetToken);
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
+TherapistSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordCgangedAt = Date.now() - 1000;
+  next();
+});
+const Therapist = mongoose.model('Therapist', TherapistSchema);
+module.exports = Therapist;
