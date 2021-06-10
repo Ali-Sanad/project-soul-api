@@ -40,7 +40,7 @@ module.exports.adminAuth = async (req, res, next) => {
     //assign the payload(decoded)=> to req.user
     req.user = decoded.user;
 
-    if (!req.user.isAdmin) return res.status(400).json({msg: 'UnAuthorized'});
+    // if (!req.user.isAdmin) return res.status(400).json({msg: 'UnAuthorized'});
 
     next();
   } catch (error) {

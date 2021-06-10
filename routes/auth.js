@@ -6,13 +6,13 @@ const config = require('config');
 const {check, validationResult} = require('express-validator');
 
 const User = require('../models/User');
-const {userAuth} = require('../middlewares/auth');
+const {userAuth, adminAuth} = require('../middlewares/auth');
 
 //@ route          api/auth
 //@descrption      user
 //@access          private
-//get authenticated user data
-router.get('/', userAuth, async (req, res) => {
+//get authenticated user || admin data upon login
+router.get('/', adminAuth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.status(200).json(user);
