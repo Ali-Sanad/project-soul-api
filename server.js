@@ -9,13 +9,12 @@ connectDB();
 //enable cors for all routes
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send({status: 'API is running'});
+});
 //Init middleware for bodyparser
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
-
-app.get('/test', (req, res) => {
-  res.send({status: 'API is running'});
-});
 
 //@define routes
 app.use('/api/auth', require('./routes/auth'));
