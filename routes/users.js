@@ -53,7 +53,10 @@ router.post(
       });
 
       //create token
-      const token = jwt.sign({_id: user._id}, config.get('jwtSecret'));
+      const token = jwt.sign(
+        {_id: user._id, isAdmin: user.isAdmin},
+        config.get('jwtSecret')
+      );
       const confirmLink = `${process.env.API_URI}/api/users/confirm-user-email/${token}`;
       //send email to compelete regiseration
       await transport.sendMail({
@@ -64,6 +67,7 @@ router.post(
       });
 
       res.status(200).send({
+        token,
         message: 'User was registered successfully! Please check your email',
       });
     } catch (err) {
