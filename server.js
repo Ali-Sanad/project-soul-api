@@ -27,6 +27,7 @@ app.use("/api/therapistProfile", require("./routes/therapistProfileRoutes"));
 app.use("/api/appointments", require("./routes/appointments"));
 app.use("/api/images", require("./routes/images"));
 app.use("/api/reviews", require("./routes/reviews"));
+app.use('/api/session' , require('./routes/video'));
 app.use("/api/conversations", require("./routes/conversation"));
 app.use("/api/messages", require("./routes/message"));
 
