@@ -1,5 +1,21 @@
 const Review = require("./../models/reviewModel");
+const handleErrors = (err) => {
+  let errors = {
+    // fname: "",
+    // lname: "",
+    // email: "",
+    // password: "",
+    // confirmPassword: "",
+  };
 
+  if (err.message.includes("that review not exist")) {
+    errors.err = "that review not exist";
+  } else {
+    errors.err = err.message;
+  }
+
+  return errors;
+};
 exports.getAllReviews = async (req, res) => {
   try {
     let filter = {};
@@ -30,5 +46,44 @@ exports.createReview = async (req, res) => {
   } catch (err) {
     console.log("err", err);
     res.status(400).json({ err: err.message });
+  }
+};
+exports.updateReview = async (req, res) => {
+  try {
+    const review = await Review.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (review) {
+      res.status(200).json({
+        status: "sucscess",
+
+        review: review,
+      });
+    } else {
+      throw Error("that review not exist");
+    }
+  } catch (err) {
+    const errors = handleErrors(err);
+    console.log(err);
+    res.status(400).json({ errors });
+  }
+};
+exports.deleteReview = async (req, res) => {
+  try {
+    const review = await Review.findByIdAndDelete(req.params.id);
+    if (review) {
+      res.status(200).json({
+        status: "sucscess review deleted",
+
+        review: review,
+      });
+    } else {
+      throw Error("that review not exist");
+    }
+  } catch (err) {
+    const errors = handleErrors(err);
+    console.log(err);
+    res.status(400).json({ errors });
   }
 };

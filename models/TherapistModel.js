@@ -48,9 +48,10 @@ const TherapistSchema = new mongoose.Schema(
 
     ratingsAverage: {
       type: Number,
-      default: 4.5,
+      // default: 4.5,
       min: [1, "Rating must be above 1"],
       max: [5, "Rating must bebelow 5"],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQunatity: {
       type: Number,
