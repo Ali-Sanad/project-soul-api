@@ -1,4 +1,4 @@
-const contactUs = (name, messege, email, phone) => {
+module.exports.contactUs = (name, messege, email, phone) => {
   return `
   <div
   style="padding:30px 0 ;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;text-align: center; background-color:#051c22; color:#080808; border-radius: 5px;">
@@ -19,5 +19,3 @@ const contactUs = (name, messege, email, phone) => {
 </div>
       `;
 };
-
-module.exports = contactUs;

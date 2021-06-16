@@ -1,4 +1,4 @@
-const resetPassword = (name, resetPasswordLink) => {
+module.exports.resetPassword = (name, resetPasswordLink) => {
   return `
 
   <div
@@ -20,5 +20,3 @@ const resetPassword = (name, resetPasswordLink) => {
 </div>
       `;
 };
-
-module.exports = confirmEmail;
