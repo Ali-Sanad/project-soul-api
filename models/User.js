@@ -23,6 +23,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    status: {
+      type: String,
+      enum: ['Pending', 'Active'],
+      default: 'Pending',
+    },
   },
   {timestamps: true}
 );
