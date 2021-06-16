@@ -52,11 +52,16 @@ router.post(
         password: password,
       });
 
+      //return JWT
+      const payload = {
+        user: {
+          id: user.id,
+          isAdmin: user.isAdmin,
+        },
+      };
+
       //create token
-      const token = jwt.sign(
-        {_id: user._id, isAdmin: user.isAdmin},
-        config.get('jwtSecret')
-      );
+      const token = jwt.sign(payload, config.get('jwtSecret'));
       const confirmLink = `${process.env.API_URI}/api/users/confirm-user-email/${token}`;
       //send email to compelete regiseration
       await transport.sendMail({
@@ -81,8 +86,10 @@ router.post(
 router.get('/confirm-user-email/:token', async (req, res) => {
   try {
     const {token} = req.params;
-    const {_id} = await jwt.verify(token, config.get('jwtSecret'));
-    const user = await User.findById(_id).select('-password');
+    const {
+      user: {id},
+    } = await jwt.verify(token, config.get('jwtSecret'));
+    const user = await User.findById(id).select('-password');
     if (!user) {
       return res.status(404).send({message: 'User Not found.'});
     }
