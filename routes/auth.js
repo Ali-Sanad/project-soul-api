@@ -49,12 +49,10 @@ router.post(
 
       //check if email is verified or not :)
       if (user.status !== 'Active') {
-        console.log('login failed');
-        return res
-          .status(401)
-          .json({
-            errors: [{msg: 'Pending Account. Please Verify Your Email!'}],
-          });
+        // console.log('login failed');
+        return res.status(401).json({
+          errors: [{msg: 'Pending Account. Please Verify Your Email!'}],
+        });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);

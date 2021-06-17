@@ -71,9 +71,7 @@ router.post(
         html: confirmEmail(name, email, confirmLink),
       });
 
-      res
-        .status(200)
-        .redirect(`${process.env.FRONTEND_URI}/pending-verification/${email}`);
+      res.status(200).json({status: user.status});
     } catch (err) {
       console.log(err.message);
       res.status(500).send('Server error');
