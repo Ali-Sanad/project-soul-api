@@ -71,9 +71,7 @@ router.post(
         html: confirmEmail(name, email, confirmLink),
       });
 
-      res
-        .status(200)
-        .redirect(`${process.env.FRONTEND_URI}/confirm-user-email/${email}`);
+      res.status(200).redirect(`/confirm-user-email/${email}`);
     } catch (err) {
       console.log(err.message);
       res.status(500).send('Server error');
