@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const Therapist = require("../models/TherapistModel");
 const APIFeatures = require("../utils/APIFeatures");
 const sendEmail = require("../utils/email");
+const { nextTick } = require("process");
 
 const handleErrors = (err) => {
   let errors = {
@@ -215,6 +216,14 @@ module.exports.updatePassword = async (req, res) => {
     // console.log(err);
     res.status(400).json({ errors });
   }
+};
+
+module.exports.aliasTopRatedTherapist = (req, res, next) => {
+  req.query.limit = "5";
+  req.query.sort = "ratingsAverage";
+
+  //req.query.fields = "fname,lname,ratingsQunatity,ratingsAverage";
+  next();
 };
 module.exports.getAllTherapists = async (req, res) => {
   try {

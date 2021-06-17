@@ -3,10 +3,12 @@ const reviewController = require("../controller/reviewController");
 //const { therapistAuth } = require("./../middlewares/therapistAuthMiddleware");
 const { userAuth } = require("./../middlewares/auth");
 const router = Router({ mergeParams: true });
-//POST /tour/23242dd3/reviews
+//POST /therapist/23242dd3/reviews
 //post/reviews
 router.post("/", userAuth, reviewController.createReview);
 router.get("/", reviewController.getAllReviews);
-//router.post("/", therapistAuth, reviewControllew.createReview);
+
+router.patch("/:id", userAuth, reviewController.updateReview);
+router.delete("/:id", userAuth, reviewController.deleteReview);
 
 module.exports = router;

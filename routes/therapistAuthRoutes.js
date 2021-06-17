@@ -28,6 +28,11 @@ router.patch(
   therapistAuth,
   therapistAuthController.updatePassword
 );
+router.get(
+  "/top-5-rated",
+  therapistAuthController.aliasTopRatedTherapist,
+  therapistAuthController.getAllTherapists
+);
 
 router.get("/", therapistAuthController.getAllTherapists);
 router.get("/:id", therapistAuthController.getOneTherapist);
