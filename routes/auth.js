@@ -33,7 +33,7 @@ router.post(
     check('password', 'Password is required').exists(),
   ],
   async (req, res) => {
-    console.log('login');
+    // console.log('login');
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({errors: errors.array()});
@@ -47,16 +47,19 @@ router.post(
         return res.status(400).json({errors: [{msg: 'Invalid Credentials'}]});
       }
 
+      //check if email is verified or not :)
+      if (user.status !== 'Active') {
+        console.log('login failed');
+        return res
+          .status(401)
+          .json({
+            errors: [{msg: 'Pending Account. Please Verify Your Email!'}],
+          });
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(400).json({errors: [{msg: 'Invalid Credentials'}]});
-      }
-
-      //check if email is verified or not :)
-      if (user.status !== 'Active') {
-        return res.status(401).send({
-          message: 'Pending Account. Please Verify Your Email!',
-        });
       }
 
       //return JWT

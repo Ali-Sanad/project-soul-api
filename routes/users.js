@@ -71,10 +71,9 @@ router.post(
         html: confirmEmail(name, email, confirmLink),
       });
 
-      res.status(200).send({
-        token,
-        message: 'User was registered successfully! Please check your email',
-      });
+      res
+        .status(200)
+        .redirect(`${process.env.FRONTEND_URI}/confirm-user-email/${email}`);
     } catch (err) {
       console.log(err.message);
       res.status(500).send('Server error');
@@ -94,16 +93,13 @@ router.get('/confirm-user-email/:token', async (req, res) => {
       return res.status(404).send({message: 'User Not found.'});
     }
 
-    //update user email status
+    //update user email status to active
     user.status = 'Active';
     await user.save();
-    //redirect to home page after email verified
-    // res.redirect(`${process.env.API_URI}/emailVerified`);
-
-    res.status(200).send({
-      message: 'User is confirmed successfully',
-      user,
-    });
+    //redirect to a verified email page after email verified to login into the website as verified account
+    res
+      .status(200)
+      .redirect(`${process.env.FRONTEND_URI}/user-email-confirmed`);
   } catch (err) {
     console.log(err.message);
     res.status(500).send('Server error');
