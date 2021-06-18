@@ -140,6 +140,34 @@ router.put('/change-password', userAuth, async (req, res) => {
   }
 });
 
+//reset password if user forgot it
+//@ route          PUT   api/users/reset-password
+//@descrption      change user password
+//@access         private through email
+router.put('/reset-password', userAuth, async (req, res) => {
+  try {
+    let {newPassword} = req.body;
+    let user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).send({message: 'User Not found.'});
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    newPassword = await bcrypt.hash(newPassword, salt);
+    user.password = newPassword;
+
+    await User.findOneAndUpdate({_id: user.id}, {$set: user}, {new: true});
+
+    res.status(200).send({
+      msg: 'Password has been reset successfully',
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(400).json({errors: [{msg: 'Reseting password failed'}]});
+  }
+});
+
 //forgot password
 //@ route          PUT   api/users/forgot-password
 //@descrption      reset user password
