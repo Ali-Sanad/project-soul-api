@@ -38,5 +38,8 @@ router.get("/", therapistAuthController.getAllTherapists);
 router.get("/:id", therapistAuthController.getOneTherapist);
 router.patch("/updatatherapist/:id", therapistAuthController.updataTherapist);
 router.delete("/deletetherapist/:id", therapistAuthController.deleteTherapist);
-
+router.get(
+  "/confirm-therapist-email/:token",
+  therapistAuthController.confirmTherapistEmail
+);
 module.exports = router;
