@@ -114,6 +114,7 @@ module.exports.confirmTherapistEmail = async (req, res) => {
   try {
     const { token } = req.params;
     const { therapistId } = await jwt.verify(token, "mySecretJWT");
+    console.log("therapost", therapistId);
     //    console.log("res", result);
     const therapist = await Therapist.findById(therapistId).select("-password");
     if (!therapist) {
