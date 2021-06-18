@@ -127,7 +127,7 @@ module.exports.confirmTherapistEmail = async (req, res) => {
     //redirect to a verified email page after email verified to login into the website as verified account
     res
       .status(200)
-      .redirect(`${process.env.FRONTEND_URI}/user-email-confirmed`);
+      .redirect(`${process.env.FRONTEND_URI}/therapist-email-confirmed`);
   } catch (err) {
     console.log(err.message);
     const errors = handleErrors(err);
