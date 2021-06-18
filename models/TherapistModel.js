@@ -36,14 +36,19 @@ const TherapistSchema = new mongoose.Schema(
         message: "password are not the same..",
       },
     },
-    passwordCgangedAt: Date,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-
+    status: {
+      type: String,
+      enum: ["Pending", "Active"],
+      default: "Pending",
+    },
     isAccepted: {
       type: Boolean,
       default: false,
     },
+    // passwordCgangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+
     passwordChangedAt: Date,
 
     ratingsAverage: {
@@ -195,14 +200,17 @@ TherapistSchema.statics.login = async function (email, password) {
   const therapist = await this.findOne({ email }).select("+password");
   if (therapist) {
     console.log(therapist);
-    if (therapist.isAccepted) {
-      const auth = await bycrpt.compare(password, therapist.password);
-      if (auth) {
-        return therapist;
+    if (therapist.status == "Active") {
+      if (therapist.isAccepted) {
+        const auth = await bycrpt.compare(password, therapist.password);
+        if (auth) {
+          return therapist;
+        }
+        throw Error("incorrect email or password ");
       }
-      throw Error("incorrect email or password ");
+      throw Error("you are not allowed to log in now");
     }
-    throw Error("you are not allowed to log in now");
+    throw Error("please confirm your email");
   }
   throw Error("incorrect email or password");
 };

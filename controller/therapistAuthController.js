@@ -2,8 +2,10 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const Therapist = require("../models/TherapistModel");
 const APIFeatures = require("../utils/APIFeatures");
-const sendEmail = require("../utils/email");
-const { nextTick } = require("process");
+//const sendEmail = require("../utils/email");
+const { transport } = require("../utils/emails/nodemailer.config");
+const { confirmEmail } = require("../utils/emails/confirm");
+const { resetPassword } = require("../utils/emails/reset-password");
 
 const handleErrors = (err) => {
   let errors = {
@@ -32,6 +34,10 @@ const handleErrors = (err) => {
   if (err.message.includes("token is invaled or has expired")) {
     errors.err = "token is invaled or has expired";
   }
+  if (err.message.includes("please confirm your email")) {
+    errors.err = "please confirm your email";
+  }
+
   if (err.message.includes("there is no user with email address")) {
     errors.err = "there is no user with email address";
   }
@@ -77,19 +83,56 @@ module.exports.signup_post = async (req, res) => {
     const token = createToken(therapist._id);
     console.log("token", token);
 
-    const message = "please verfiy ypur account ";
-    const options = {
-      email: req.body.email,
-      subject: "verify your account",
-      message,
-    };
-    await sendEmail(options);
-    res.status(201).json({ token });
+    // const message = "please verfiy ypur account ";
+    // const options = {
+    //   email: req.body.email,
+    //   subject: "verify your account",
+    //   message,
+    // };
+    // await sendEmail(options);
+    // res.status(201).json({ token });
+    const confirmLink = `${process.env.API_URI}/api/therapist/confirm-therapist-email/${token}`;
+    console.log("confirm", confirmLink);
+    //send email to complete regiseration
+    await transport.sendMail({
+      from: `Soul-Team 👻 <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Please confirm your account",
+      html: confirmEmail(fname, email, confirmLink),
+    });
+
+    res.status(200).json({ therapist: therapist });
   } catch (err) {
     console.log("catch");
     const errors = handleErrors(err);
     // console.log(err);
     res.status(400).json({ errors });
+  }
+};
+
+module.exports.confirmTherapistEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { therapistId } = await jwt.verify(token, "mySecretJWT");
+    console.log("therapost", therapistId);
+    //    console.log("res", result);
+    const therapist = await Therapist.findById(therapistId).select("-password");
+    if (!therapist) {
+      return res.status(404).send({ msg: "therapist Not found." });
+    }
+
+    //update user email status to active
+    therapist.status = "Active";
+    await therapist.save();
+    //redirect to a verified email page after email verified to login into the website as verified account
+    res
+      .status(200)
+      .redirect(`${process.env.FRONTEND_URI}/therapist-email-confirmed`);
+  } catch (err) {
+    console.log(err.message);
+    const errors = handleErrors(err);
+
+    res.status(500).send("Server error");
   }
 };
 
@@ -120,27 +163,39 @@ module.exports.forgotPassword = async (req, res) => {
     }
     //generateToken
     const resetToken = therapist.createPasswordResetToken();
+    console.log("resttoke", resetToken);
     await therapist.save({ validateBeforeSave: false });
     // res.status(200).json({ resetToken });
 
-    //send email
+    // //send email
 
-    const resetURL = `${req.protocol}://${req.get(
-      "host"
-    )}/api/therapist/resetpassword/${resetToken}`;
-    console.log(resetURL);
-    const message = `Forget ypur password ? dubmti a request with your new password and confirm to :
-      ${resetURL}.\n if you didnt forget please ignore email`;
-    await sendEmail({
-      email: req.body.email,
-      subject: "your passwud reset token in 10 min",
-      message,
-    });
+    // const resetURL = `${req.protocol}://${req.get(
+    //   "host"
+    // )}/api/therapist/resetpassword/${resetToken}`;
+    // console.log(resetURL);
+    // const message = `Forget ypur password ? dubmti a request with your new password and confirm to :
+    //   ${resetURL}.\n if you didnt forget please ignore email`;
+    // await sendEmail({
+    //   email: req.body.email,
+    //   subject: "your passwud reset token in 10 min",
+    //   message,
+    // });
+    const resetPasswordLink = `${process.env.FRONTEND_URI}/therapist-reset-password/${resetToken}`; //front
 
-    res.status(200).json({
-      status: "sucss",
-      message,
+    // send mail with the reset password link
+    await transport.sendMail({
+      from: `Soul-Team  <${process.env.EMAIL_USER}>`,
+      to: req.body.email,
+      subject: "Password Reset",
+      html: resetPassword(therapist.fname, resetPasswordLink),
     });
+    res
+      .status(200)
+      .json({ msg: "Reset password resquest has been sent successfully" });
+    // res.status(200).json({
+    //   status: "sucss",
+    //   message,
+    // });
   } catch (err) {
     console.log("errr", err);
     // therapist.passwordResetToken = undefined;
