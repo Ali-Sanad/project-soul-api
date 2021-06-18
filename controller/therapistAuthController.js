@@ -180,7 +180,7 @@ module.exports.forgotPassword = async (req, res) => {
     //   subject: "your passwud reset token in 10 min",
     //   message,
     // });
-    const resetPasswordLink = `${process.env.FRONTEND_URI}/reset-therapist-password/${resetToken}`; //front
+    const resetPasswordLink = `${process.env.FRONTEND_URI}/therapist-reset-password/${resetToken}`; //front
 
     // send mail with the reset password link
     await transport.sendMail({
