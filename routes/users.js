@@ -81,7 +81,7 @@ router.post(
 //confimation user's email route
 //@ route          POST   api/users/confirm-user-email/:token
 //@descrption      confirm user email
-//@access         private through email
+//@access         private through email.
 router.get('/confirm-user-email/:token', async (req, res) => {
   try {
     const {token} = req.params;
@@ -181,6 +181,29 @@ router.post('/forgot-password', async (req, res) => {
   } catch (err) {
     console.log(err.message);
     res.status(400).json({errors: [{msg: 'Reset password resquest failed'}]});
+  }
+});
+
+//contact us
+//@ route          POST   api/users/contact-us
+//@descrption      inquiry from user | anonymous user
+//@access         Public
+router.post('/contact-us', async (req, res) => {
+  try {
+    let {subject, message, name, email, phone} = req.body;
+
+    // send mail with your feedback or inquiry to soul-team
+    await transport.sendMail({
+      from: `User-Inquiry`,
+      to: process.env.EMAIL_USER, //Soul-team email
+      subject: subject,
+      html: contactUs(name, message, email, phone),
+    });
+
+    res.status(200).json({msg: 'You message has been sent successfully'});
+  } catch (error) {
+    console.log(err.message);
+    res.status(400).json({errors: [{msg: 'Message failed'}]});
   }
 });
 
