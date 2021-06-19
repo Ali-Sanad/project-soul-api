@@ -15,7 +15,8 @@ const User = require('../models/User');
 router.get('/', async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 });
-    if (isAccepted) {
+    console.log(posts);
+    if (posts.isAccepted) {
       return res.status(404).json({ msg: 'Post is pending' });
     }
     res.json(posts);
@@ -31,11 +32,11 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-
+    console.log(post);
     if (!post) {
       return res.status(404).json({ msg: 'Post not found' });
     }
-    if (isAccepted) {
+    if (!post.isAccepted) {
       return res.status(404).json({ msg: 'Post is pending' });
     }
     res.json(post);
