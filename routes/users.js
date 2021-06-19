@@ -16,7 +16,6 @@ const {userAuth} = require('../middlewares/auth');
 //@ route          POST   api/users
 //@descrption      Register user
 //@access          Public
-
 router.post(
   '/',
   [
@@ -63,7 +62,7 @@ router.post(
       //create token
       const token = jwt.sign(payload, config.get('jwtSecret'));
       const confirmLink = `${process.env.API_URI}/api/users/confirm-user-email/${token}`;
-      //send email to compelete regiseration
+      //send email to complete regiseration
       await transport.sendMail({
         from: `Soul-Team 👻 <${process.env.EMAIL_USER}>`,
         to: email,
@@ -80,6 +79,9 @@ router.post(
 );
 
 //confimation user's email route
+//@ route          POST   api/users/confirm-user-email/:token
+//@descrption      confirm user email
+//@access         private through email.
 router.get('/confirm-user-email/:token', async (req, res) => {
   try {
     const {token} = req.params;
@@ -88,7 +90,7 @@ router.get('/confirm-user-email/:token', async (req, res) => {
     } = await jwt.verify(token, config.get('jwtSecret'));
     const user = await User.findById(id).select('-password');
     if (!user) {
-      return res.status(404).send({message: 'User Not found.'});
+      return res.status(404).send({msg: 'User Not found.'});
     }
 
     //update user email status to active
@@ -103,4 +105,134 @@ router.get('/confirm-user-email/:token', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+//change password
+//@ route          PUT   api/users/change-password
+//@descrption      change user password
+//@access         private through email
+router.put('/change-password', userAuth, async (req, res) => {
+  try {
+    let {password, newPassword} = req.body;
+    let user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).send({message: 'User Not found.'});
+    }
+
+    let isMatched = await bcrypt.compare(password, user.password);
+
+    if (!isMatched) {
+      return res.status(401).json({errors: [{msg: 'Wrong password'}]});
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    password = await bcrypt.hash(newPassword, salt);
+    user.password = password;
+
+    await User.findOneAndUpdate({_id: user.id}, {$set: user}, {new: true});
+
+    res.status(200).send({
+      msg: 'Password has been changed successfully',
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(400).json({errors: [{msg: 'Changing password failed'}]});
+  }
+});
+
+//reset password if user forgot it
+//@ route          PUT   api/users/reset-password
+//@descrption      change user password
+//@access         private through email
+router.put('/reset-password', userAuth, async (req, res) => {
+  try {
+    let {newPassword} = req.body;
+    let user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).send({message: 'User Not found.'});
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    newPassword = await bcrypt.hash(newPassword, salt);
+    user.password = newPassword;
+
+    await User.findOneAndUpdate({_id: user.id}, {$set: user}, {new: true});
+
+    res.status(200).send({
+      msg: 'Password has been reset successfully',
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(400).json({errors: [{msg: 'Reseting password failed'}]});
+  }
+});
+
+//forgot password
+//@ route          PUT   api/users/forgot-password
+//@descrption      reset user password
+//@access         Public through email
+router.post('/forgot-password', async (req, res) => {
+  try {
+    let {email} = req.body;
+    email = email.trim();
+    let user = await User.findOne({email});
+    if (!user) {
+      return res.status(404).send({message: 'User is not register'});
+    }
+
+    //return JWT
+    const payload = {
+      user: {
+        id: user.id,
+        isAdmin: user.isAdmin,
+      },
+    };
+
+    //create token that expires after 60 mins
+    const token = jwt.sign(payload, config.get('jwtSecret'), {
+      expiresIn: 60 * 60,
+    });
+
+    const resetPasswordLink = `${process.env.FRONTEND_URI}/reset-password/${token}`;
+
+    // send mail with the reset password link
+    await transport.sendMail({
+      from: `Soul-Team  <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Password Reset',
+      html: resetPassword(user.name, resetPasswordLink),
+    });
+    res
+      .status(200)
+      .json({msg: 'Reset password resquest has been sent successfully'});
+  } catch (err) {
+    console.log(err.message);
+    res.status(400).json({errors: [{msg: 'Reset password resquest failed'}]});
+  }
+});
+
+//contact us
+//@ route          POST   api/users/contact-us
+//@descrption      inquiry from user | anonymous user
+//@access         Public
+router.post('/contact-us', async (req, res) => {
+  try {
+    let {subject, message, name, email, phone} = req.body;
+
+    // send mail with your feedback or inquiry to soul-team
+    await transport.sendMail({
+      from: `User-Inquiry`,
+      to: process.env.EMAIL_USER, //Soul-team email
+      subject: subject,
+      html: contactUs(name, message, email, phone),
+    });
+
+    res.status(200).json({msg: 'You message has been sent successfully'});
+  } catch (error) {
+    console.log(err.message);
+    res.status(400).json({errors: [{msg: 'Message failed'}]});
+  }
+});
+
 module.exports = router;
