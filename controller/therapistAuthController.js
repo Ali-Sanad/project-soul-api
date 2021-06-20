@@ -350,14 +350,14 @@ module.exports.updataTherapist = async (req, res) => {
         runValidators: true,
       }
     );
-    if (therapist) {
-      res.status(200).json({
-        status: "sucscess",
-
-        therapist: therapist,
-      });
+    if (!therapist) {
+      throw Error("that Therapist not exist");
     }
-    throw Error("that Therapist not exist");
+    res.status(200).json({
+      status: "sucscess",
+
+      therapist: therapist,
+    });
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
