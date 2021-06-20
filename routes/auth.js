@@ -67,7 +67,6 @@ router.post(
           isAdmin: user.isAdmin,
         },
       };
-
       jwt.sign(
         payload,
         config.get('jwtSecret'),
@@ -75,9 +74,17 @@ router.post(
         (err, token) => {
           if (err) throw err;
           if (user.isAdmin) {
-            res.status(200).json({msg: 'Admin logged in successfully', token});
+            res.status(200).json({
+              msg: 'Admin logged in successfully',
+              token,
+              isAdmin: user.isAdmin,
+            });
           }
-          res.status(200).json({msg: 'User logged in successfully', token});
+          res.status(200).json({
+            msg: 'User logged in successfully',
+            token,
+            isAdmin: user.isAdmin,
+          });
         }
       );
     } catch (err) {
