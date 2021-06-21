@@ -342,14 +342,12 @@ module.exports.loadTherapist = async (req, res) => {
 
 module.exports.updataTherapist = async (req, res) => {
   try {
-    const therapist = await Therapist.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    console.log("id", req.params.id);
+    const id = req.params.id.trim();
+    const therapist = await Therapist.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!therapist) {
       throw Error("that Therapist not exist");
     }
@@ -358,6 +356,7 @@ module.exports.updataTherapist = async (req, res) => {
 
       therapist: therapist,
     });
+    console.log("ther", therapist);
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
