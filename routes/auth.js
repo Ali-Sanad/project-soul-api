@@ -9,6 +9,11 @@ const {sendConfirmationEmail} = require('../utils/emails/nodemailer.config');
 const User = require('../models/User');
 const {userAuth, adminAuth} = require('../middlewares/auth');
 
+
+
+
+
+
 //@ route          api/auth/loadUser
 //@descrption      user
 //@access          private
@@ -34,7 +39,7 @@ router.get('/loadAdmin', adminAuth, async (req, res) => {
   } catch (err) {
     console.error(err.message);
     return res.status(500).send('Server error');
-  }
+  } 
 });
 
 //@ route          POST   api/auth
