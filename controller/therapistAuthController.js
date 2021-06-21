@@ -367,14 +367,14 @@ module.exports.updataTherapist = async (req, res) => {
 module.exports.deleteTherapist = async (req, res) => {
   try {
     const therapist = await Therapist.findByIdAndDelete(req.params.id);
-    if (therapist) {
-      res.status(200).json({
-        status: "sucscess",
-
-        therapist: therapist,
-      });
+    if (!therapist) {
+      throw Error("that Therapist not exist");
     }
-    throw Error("that Therapist not exist");
+    res.status(200).json({
+      status: "sucscess",
+
+      therapist: therapist,
+    });
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
