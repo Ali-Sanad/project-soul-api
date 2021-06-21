@@ -356,8 +356,10 @@ module.exports.updataTherapist = async (req, res) => {
 
         therapist: therapist,
       });
-    }
+    }else{
+    
     throw Error("that Therapist not exist");
+    }
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
