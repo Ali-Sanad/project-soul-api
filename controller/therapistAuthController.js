@@ -6,7 +6,6 @@ const APIFeatures = require("../utils/APIFeatures");
 const { transport } = require("../utils/emails/nodemailer.config");
 const { confirmEmail } = require("../utils/emails/confirm");
 const { resetPassword } = require("../utils/emails/reset-password");
-const bcrypt = require("bcryptjs");
 
 const handleErrors = (err) => {
   let errors = {
@@ -141,59 +140,17 @@ module.exports.confirmTherapistEmail = async (req, res) => {
 
 module.exports.login_post = async (req, res) => {
   const { email, password } = req.body;
-  // try {
-  //   const therapist = await Therapist.login(email, password);
-
-  //   const token = createToken(therapist._id);
-
-  //   res.status(200).json({ token });
-  // } catch (err) {
-  //   //const errors = handleErrors(err);
-  //   console.log("catch");
-  //   const errors = handleErrors(err);
-  //   console.log(err);
-  //   res.status(400).json({ errors });
-  // }
-
   try {
-    //const therapist = await Therapist.login(email, password);
-    let therapist = await Therapist.findOne({ email });
+    const therapist = await Therapist.login(email, password);
+    const token = createToken(therapist._id);
 
-    if (!therapist) {
-      return res.status(400).json({ errors: [{ msg: "Invalid Credentials" }] });
-    }
-    if (therapist.status !== "Active") {
-      // console.log('login failed');
-      return res.status(401).json({
-        errors: [{ msg: "Pending Account. Please Verify Your Email!" }],
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, therapist.password);
-    if (!isMatch) {
-      return res.status(400).json({ errors: [{ msg: "Invalid Credentials" }] });
-    }
-    //const token = createToken(therapist._id);
-    const payload = {
-      therapistId: therapist._id,
-    };
-    jwt.sign(payload, "mySecretJWT", { expiresIn: 36000 }, (err, token) => {
-      if (err) throw err;
-
-      res.status(200).json({
-        msg: "Therapist logged in successfully",
-        token,
-      });
-    });
-    //  res.status(200).json({ token });
+    res.status(200).json({ token });
   } catch (err) {
     //const errors = handleErrors(err);
-    // console.log("catch");
-    // const errors = handleErrors(err);
-    // console.log(err);
-    // res.status(400).json({ errors });
-    console.log(err.message);
-    res.status(500).send("Server error");
+    console.log("catch");
+    const errors = handleErrors(err);
+    console.log(err);
+    res.status(400).json({ errors });
   }
 };
 
@@ -385,21 +342,22 @@ module.exports.loadTherapist = async (req, res) => {
 
 module.exports.updataTherapist = async (req, res) => {
   try {
-    console.log("id", req.params.id);
-    const id = req.params.id.trim();
-    const therapist = await Therapist.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!therapist) {
-      throw Error("that Therapist not exist");
-    }
-    res.status(200).json({
-      status: "sucscess",
+    const therapist = await Therapist.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (therapist) {
+      res.status(200).json({
+        status: "sucscess",
 
-      therapist: therapist,
-    });
-    console.log("ther", therapist);
+        therapist: therapist,
+      });
+    }
+    throw Error("that Therapist not exist");
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
@@ -410,14 +368,14 @@ module.exports.updataTherapist = async (req, res) => {
 module.exports.deleteTherapist = async (req, res) => {
   try {
     const therapist = await Therapist.findByIdAndDelete(req.params.id);
-    if (!therapist) {
-      throw Error("that Therapist not exist");
-    }
-    res.status(200).json({
-      status: "sucscess",
+    if (therapist) {
+      res.status(200).json({
+        status: "sucscess",
 
-      therapist: therapist,
-    });
+        therapist: therapist,
+      });
+    }
+    throw Error("that Therapist not exist");
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
