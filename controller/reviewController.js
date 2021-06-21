@@ -54,15 +54,14 @@ exports.updateReview = async (req, res) => {
       new: true,
       runValidators: true,
     });
-    if (review) {
-      res.status(200).json({
-        status: "sucscess",
-
-        review: review,
-      });
-    } else {
+    if (!review) {
       throw Error("that review not exist");
     }
+    res.status(200).json({
+      status: "sucscess",
+
+      review: review,
+    });
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
@@ -73,14 +72,13 @@ exports.deleteReview = async (req, res) => {
   try {
     const review = await Review.findByIdAndDelete(req.params.id);
     if (review) {
-      res.status(200).json({
-        status: "sucscess review deleted",
-
-        review: review,
-      });
-    } else {
       throw Error("that review not exist");
     }
+    res.status(200).json({
+      status: "sucscess review deleted",
+
+      review: review,
+    });
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
