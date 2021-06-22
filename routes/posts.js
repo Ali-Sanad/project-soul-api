@@ -145,7 +145,7 @@ router.patch('/:id', userAuth, async (req, res) => {
           return res.status(401).json({ notauthorized: 'User not authorized' });
         }
 
-        //Update
+        //Update post
         post
           .update(updatedPost, { new: true })
           .then(() => res.json({ success: true }));
