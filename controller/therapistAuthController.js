@@ -333,6 +333,7 @@ module.exports.loadTherapist = async (req, res) => {
     if (!therapist) {
       throw Error('that Therapist not exist');
     }
+    res.status(200).json(therapist);
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
