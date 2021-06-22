@@ -101,7 +101,7 @@ module.exports.signup_post = async (req, res) => {
       html: confirmEmail(fname, email, confirmLink),
     });
 
-    res.status(200).json({ therapist: therapist });
+    res.status(200).json({ token });
   } catch (err) {
     console.log("catch");
     const errors = handleErrors(err);
