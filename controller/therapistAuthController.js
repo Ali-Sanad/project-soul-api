@@ -66,7 +66,7 @@ const createToken = (id) => {
   };
   // const maxAge = Date.now() + 3 * 24 * 60 * 60;
   return jwt.sign(payload, "mySecretJWT", {
-    expiresIn: "5d",
+    expiresIn: 36000,
   });
 };
 
