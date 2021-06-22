@@ -6,7 +6,6 @@ const config = require('config');
 const {check, validationResult} = require('express-validator');
 
 const User = require('../models/User');
-const Profile = require('../models/UserProfile');
 const {userAuth, adminAuth} = require('../middlewares/auth');
 
 //@ route          POST   api/admins
@@ -14,7 +13,7 @@ const {userAuth, adminAuth} = require('../middlewares/auth');
 //@access          Public
 router.post(
   '/',
-  [
+  [ 
     check('name', 'Name is required').notEmpty(),
     check('email', 'Please enter a valid email').isEmail(),
     check('password', 'Password should be 6 characters or more').isLength({
@@ -27,7 +26,7 @@ router.post(
       return res.status(400).json({errors: errors.array()});
     }
 
-    const {name, email, password} = req.body;
+    const {name, email, password,...rest} = req.body;
     try {
       //see if admin exist
       let user = await User.findOne({email});
@@ -40,6 +39,7 @@ router.post(
         email,
         password,
         isAdmin: true,
+        ...rest
       });
 
       //encrypt password
@@ -74,7 +74,7 @@ router.post(
 //@ route         GET api/admins
 //@descrption      get all users
 //@access          private
-router.get('/', adminAuth, async (req, res) => {
+router.get('/users', adminAuth, async (req, res) => {
   try {
     const users = await User.find({isAdmin: false});
     res.json(users);
@@ -84,54 +84,33 @@ router.get('/', adminAuth, async (req, res) => {
   }
 });
 
-//@ route         GET api/admins/user-profiles
-//@descrption      get all user  profiles
-//@access          private
-router.get('/user-profiles', adminAuth, async (req, res) => {
-  try {
-    const profiles = await Profile.find({}).populate('user', [
-      'name',
-      'email',
-      'image',
-      'isAdmin',
-    ]);
 
-    res.json(profiles);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
 
 //@ route         GET api/admins/user/:user_id
-//@descrption      get profile by user_id
+//@descrption      get user by user_id
 //@access          private
 router.get('/user/:user_id', adminAuth, async (req, res) => {
   try {
-    const profile = await Profile.findOne({
-      user: req.params.user_id,
-    }).populate('user', ['name', 'email', 'image', 'isAdmin']);
+    const user = await User.findById(req.params.user_id)
 
-    if (!profile) return res.status(400).json({msg: 'Profile not found'});
-    res.json(profile);
+    if (!user) return res.status(400).json({msg: 'User not found'});
+    res.json(user);
   } catch (err) {
     console.error(err.message);
     if (err.kind == 'ObjectId') {
-      return res.status(400).json({msg: 'Profile not found'});
+      return res.status(400).json({msg: 'User not found'});
     }
     res.status(500).send('Server error');
   }
 });
 
-//@ route         DELETE api/admins/user-profile
+//@ route         DELETE api/admins/user/:user_id
 //@descrption      delete user profile , user & posts
 //@access          private
-router.delete('/user-profile/:user_id', adminAuth, async (req, res) => {
+router.delete('/user/:user_id', adminAuth, async (req, res) => {
   try {
     //remove user posts @todo
     // await Post.deleteMany({user: req.params.user_id});
-    //remove profile
-    await Profile.findOneAndDelete({user: req.params.user_id});
     //remove user
     await User.findOneAndDelete({_id: req.params.user_id});
 
