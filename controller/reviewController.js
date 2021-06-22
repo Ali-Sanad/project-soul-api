@@ -50,11 +50,7 @@ exports.updateReview = async (req, res) => {
     if (!review) {
       throw Error("that review not exist");
     }
-    res.status(200).json({
-      status: "sucscess",
-
-      review: review,
-    });
+    res.status(200).json(review);
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
@@ -67,11 +63,7 @@ exports.deleteReview = async (req, res) => {
     if (review) {
       throw Error("that review not exist");
     }
-    res.status(200).json({
-      status: "sucscess review deleted",
-
-      review: review,
-    });
+    res.status(200).json(review);
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
