@@ -51,13 +51,17 @@ module.exports.deleteExperience = async (req, res) => {
 
 module.exports.updateEducation = async (req, res) => {
   try {
-    const therapist = await Therapist.findOne({ _id: req.therapistId });
+    const therapist = await Therapist.findOne({ _id: req.params.id });
 
-    therapist.education.unshift(req.body);
+    if (therapist) {
+      therapist.education.unshift(req.body);
+      await therapist.save();
+      res.status(200).json({ therapist });
+    } else {
+      throw Error("that Therapist not exist");
+    }
 
-    await therapist.save();
-
-    res.json({ therapist });
+    // res.json({ therapist });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
