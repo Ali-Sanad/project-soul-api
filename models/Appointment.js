@@ -17,6 +17,7 @@ const AppointmentSchema = new mongoose.Schema(
     },
     duration: {
       type: Number,
+      default: 60,
     },
     fees: {
       type: Number,
