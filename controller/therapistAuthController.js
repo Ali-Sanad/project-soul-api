@@ -65,6 +65,7 @@ const createToken = (id) => {
     therapistId: id,
   };
   // const maxAge = Date.now() + 3 * 24 * 60 * 60;
+
   return jwt.sign(payload, "mySecretJWT", {
     expiresIn: 36000,
   });
@@ -162,43 +163,42 @@ module.exports.forgotPassword = async (req, res) => {
     const therapist = await Therapist.findOne({ email: req.body.email });
     if (!therapist) {
       throw Error("there is no user with email address");
-    } else {
-      //generateToken
-      const resetToken = therapist.createPasswordResetToken();
-      console.log("resttoke", resetToken);
-      await therapist.save({ validateBeforeSave: false });
-      // res.status(200).json({ resetToken });
-
-      // //send email
-
-      // const resetURL = `${req.protocol}://${req.get(
-      //   "host"
-      // )}/api/therapist/resetpassword/${resetToken}`;
-      // console.log(resetURL);
-      // const message = `Forget ypur password ? dubmti a request with your new password and confirm to :
-      //   ${resetURL}.\n if you didnt forget please ignore email`;
-      // await sendEmail({
-      //   email: req.body.email,
-      //   subject: "your passwud reset token in 10 min",
-      //   message,
-      // });
-      const resetPasswordLink = `${process.env.FRONTEND_URI}/therapist-reset-password/${resetToken}`; //front
-
-      // send mail with the reset password link
-      await transport.sendMail({
-        from: `Soul-Team  <${process.env.EMAIL_USER}>`,
-        to: req.body.email,
-        subject: "Password Reset",
-        html: resetPassword(therapist.fname, resetPasswordLink),
-      });
-      res
-        .status(200)
-        .json({ msg: "Reset password resquest has been sent successfully" });
-      // res.status(200).json({
-      //   status: "sucss",
-      //   message,
-      // });
     }
+    //generateToken
+    const resetToken = therapist.createPasswordResetToken();
+    console.log("resttoke", resetToken);
+    await therapist.save({ validateBeforeSave: false });
+    // res.status(200).json({ resetToken });
+
+    // //send email
+
+    // const resetURL = `${req.protocol}://${req.get(
+    //   "host"
+    // )}/api/therapist/resetpassword/${resetToken}`;
+    // console.log(resetURL);
+    // const message = `Forget ypur password ? dubmti a request with your new password and confirm to :
+    //   ${resetURL}.\n if you didnt forget please ignore email`;
+    // await sendEmail({
+    //   email: req.body.email,
+    //   subject: "your passwud reset token in 10 min",
+    //   message,
+    // });
+    const resetPasswordLink = `${process.env.FRONTEND_URI}/therapist-reset-password/${resetToken}`; //front
+
+    // send mail with the reset password link
+    await transport.sendMail({
+      from: `Soul-Team  <${process.env.EMAIL_USER}>`,
+      to: req.body.email,
+      subject: "Password Reset",
+      html: resetPassword(therapist.fname, resetPasswordLink),
+    });
+    res
+      .status(200)
+      .json({ msg: "Reset password resquest has been sent successfully" });
+    // res.status(200).json({
+    //   status: "sucss",
+    //   message,
+    // });
   } catch (err) {
     console.log("errr", err);
     // therapist.passwordResetToken = undefined;
@@ -313,13 +313,13 @@ module.exports.getOneTherapist = async (req, res) => {
     );
     if (!therapist) {
       throw Error("that Therapist not exist");
-    } else {
-      res.status(200).json({
-        status: "sucscess",
-
-        therapist: therapist,
-      });
     }
+
+    res.status(200).json({
+      status: "sucscess",
+
+      therapist: therapist,
+    });
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
@@ -333,9 +333,8 @@ module.exports.loadTherapist = async (req, res) => {
     const therapist = await Therapist.findById(req.therapistId);
     if (!therapist) {
       throw Error("that Therapist not exist");
-    } else {
-      res.status(200).json(therapist);
     }
+    res.status(200).json(therapist);
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
@@ -353,6 +352,7 @@ module.exports.updataTherapist = async (req, res) => {
         runValidators: true,
       }
     );
+
     if (therapist) {
       res.status(200).json({
         status: "sucscess",
@@ -381,6 +381,7 @@ module.exports.deleteTherapist = async (req, res) => {
     } else {
       throw Error("that Therapist not exist");
     }
+    throw Error("that Therapist not exist");
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);

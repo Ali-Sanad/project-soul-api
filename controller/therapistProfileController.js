@@ -56,9 +56,15 @@ module.exports.updateEducation = async (req, res) => {
 
     therapist.education.unshift(req.body);
 
-    await therapist.save();
+    if (therapist) {
+      therapist.education.unshift(req.body);
+      await therapist.save();
+      res.status(200).json({ therapist });
+    } else {
+      throw Error("that Therapist not exist");
+    }
 
-    res.json({ therapist });
+    // res.json({ therapist });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
