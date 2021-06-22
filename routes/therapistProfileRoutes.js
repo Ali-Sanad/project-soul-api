@@ -16,7 +16,7 @@ router.delete(
   therapistProfileController.deleteExperience
 );
 router.put(
-  '/updateEducation',
+  '/updateEducation/:id',
   therapistAuth,
   therapistProfileController.updateEducation
 );
