@@ -5,7 +5,6 @@ const { check, validationResult } = require("express-validator");
 const { userAuth, adminAuth } = require("../middlewares/auth");
 const { therapistAuth } = require("../middlewares/therapistAuthMiddleware");
 
-const UserProfile = require("../models/UserProfile");
 const User = require("../models/User");
 const Therapist = require("../models/TherapistModel");
 const Article = require("../models/Article");
@@ -102,5 +101,5 @@ router.post("/posts/:post_id", userAuth, async (req, res) => {
     console.error(err.message);
     res.status(500).send("Server error");
   }
-});
+}); 
 module.exports = router;
