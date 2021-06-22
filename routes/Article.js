@@ -42,26 +42,96 @@ router.get("/:id", async (req, res) => {
 //@descrption      post new article
 //@access          private(just for therapist)
 
+// router.post("/", therapistAuth, async (req, res) => {
+//   const content = req.body.content;
+//   const title = req.body.title;
+//   const fileStr = req.body.data;
+
+//   const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+//     upload_preset: "soul",
+//   });
+
+//   let url = "";
+//   if (!req.body.data) {
+//     url = "";
+//   } else {
+//     url = uploadedResponse.secure_url;
+//   }
+
+//   try {
+//     console.log("articles");
+//     const id = req.therapistId;
+//     const therapist = await Therapist.findById(id).select("-password");
+
+//     const article = await Article.create({
+//       therapist: id,
+//       name: therapist.fname,
+//       therapistImg: therapist.therapist_image_url,
+//       ArticleImg: url,
+//       content,
+//       title,
+//     });
+//     res.json(article);
+//   } catch (error) {
+//     console.log(error.message);
+//     return res.status(404).json({ msg: "Server error" });
+//   }
+// });
+
+// //@ route          DELETE  api/article
+// //@descrption      delete article
+// //@access          Public (it will not appear to therapist unless he is the owner in server side (may be protect it later))
+// router.delete("/:id", async (req, res) => {
+//   try {
+//     // delete Article
+//     await Article.findOneAndRemove({ _id: req.params.id });
+
+//     res.json({ msg: "article deleted" });
+//   } catch (error) {
+//     console.log(error.message);
+//     return res.status(404).json({ msg: "Server error" });
+//   }
+// });
+
+//@ route          GET  api/article
+//@descrption      get one article
+//@access          Public
+router.get("/:id", async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    res.json(article);
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ msg: "Server error" });
+  }
+});
+
+//@ route          POST   api/article
+//@descrption      post new article
+//@access          private(just for therapist)
+
 router.post("/", therapistAuth, async (req, res) => {
   const content = req.body.content;
   const title = req.body.title;
-  const fileStr = req.body.data;
-
-  const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
-    upload_preset: "soul",
-  });
-
-  let url = "";
-  if (!req.body.data) {
-    url = "";
-  } else {
-    url = uploadedResponse.secure_url;
-  }
 
   try {
     console.log("articles");
     const id = req.therapistId;
     const therapist = await Therapist.findById(id).select("-password");
+    console.log(therapist);
+
+    let url = "";
+    if (!req.body.data) {
+      url = "";
+    } else {
+      //cloudinary image upload
+      const fileStr = req.body.data;
+      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+        upload_preset: "soul",
+      });
+
+      url = uploadedResponse.secure_url;
+    }
 
     const article = await Article.create({
       therapist: id,
@@ -72,21 +142,6 @@ router.post("/", therapistAuth, async (req, res) => {
       title,
     });
     res.json(article);
-  } catch (error) {
-    console.log(error.message);
-    return res.status(404).json({ msg: "Server error" });
-  }
-});
-
-//@ route          DELETE  api/article
-//@descrption      delete article
-//@access          Public (it will not appear to therapist unless he is the owner in server side (may be protect it later))
-router.delete("/:id", async (req, res) => {
-  try {
-    // delete Article
-    await Article.findOneAndRemove({ _id: req.params.id });
-
-    res.json({ msg: "article deleted" });
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ msg: "Server error" });

@@ -5,8 +5,8 @@ const therapistProfileController = require("../controller/therapistProfileContro
 const { therapistAuth } = require("../middlewares/therapistAuthMiddleware");
 
 router.put(
-  "/updateExperince",
-  therapistAuth,
+  "/updateExperince/:id",
+
   therapistProfileController.updateExperince
 );
 router.delete(

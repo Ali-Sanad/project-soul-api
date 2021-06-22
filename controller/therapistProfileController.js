@@ -7,18 +7,17 @@
 const Therapist = require("../models/TherapistModel");
 
 module.exports.updateExperince = async (req, res, next) => {
+  const id = req.params.id;
   const { title, location, from, to } = req.body;
 
   const newExperience = { title, location, from, to };
   console.log("new", newExperience);
   try {
-    const therapist = await Therapist.findById(req.therapistId); //req.therapsitId
+    const therapist = await Therapist.findById(id); //req.therapsitId
     console.log("th", therapist);
     therapist.experience.unshift(newExperience);
     await therapist.save();
-    res.status(200).send("sucess");
-
-    //res.json({ therapist });
+    res.json({ therapist });
   } catch (err) {
     console.error("err", err);
     res.status(500).send("server error");
@@ -51,7 +50,11 @@ module.exports.deleteExperience = async (req, res) => {
 
 module.exports.updateEducation = async (req, res) => {
   try {
-    const therapist = await Therapist.findOne({ _id: req.params.id });
+    const id = req.params.id;
+
+    const therapist = await Therapist.findOne({ _id: id });
+
+    therapist.education.unshift(req.body);
 
     if (therapist) {
       therapist.education.unshift(req.body);
