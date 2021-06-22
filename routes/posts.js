@@ -16,9 +16,9 @@ router.get('/', async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 });
     console.log(posts);
-    if (posts.isAccepted) {
-      return res.status(404).json({ msg: 'Post is pending' });
-    }
+    // if (posts.isAccepted) {
+    //   return res.status(404).json({ msg: 'Post is pending' });
+    // }
     res.json(posts);
   } catch (err) {
     console.error(err.message);
@@ -36,9 +36,9 @@ router.get('/:id', async (req, res) => {
     if (!post) {
       return res.status(404).json({ msg: 'Post not found' });
     }
-    if (!post.isAccepted) {
-      return res.status(404).json({ msg: 'Post is pending' });
-    }
+    // if (!post.isAccepted) {
+    //   return res.status(404).json({ msg: 'Post is pending' });
+    // }
     res.json(post);
   } catch (err) {
     if (err.kind === 'ObjectId') {
