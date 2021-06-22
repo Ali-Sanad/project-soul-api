@@ -120,10 +120,24 @@ router.post("/", therapistAuth, async (req, res) => {
     const therapist = await Therapist.findById(id).select("-password");
     console.log(therapist);
 
+    let url = "";
+    if (!req.body.data) {
+      url = "";
+    } else {
+      //cloudinary image upload
+      const fileStr = req.body.data;
+      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+        upload_preset: "soul",
+      });
+
+      url = uploadedResponse.secure_url;
+    }
+
     const article = await Article.create({
       therapist: id,
       name: therapist.fname,
       therapistImg: therapist.therapist_image_url,
+      ArticleImg: url,
       content,
       title,
     });
