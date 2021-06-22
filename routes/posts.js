@@ -78,7 +78,7 @@ router.post(
       }
       const newPost = new Post({
         text: req.body.text,
-        category: req.body.category,
+        // category: req.body.category,
         postImage:url,
         name: user.name,
         user: req.user.id,
