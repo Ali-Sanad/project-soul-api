@@ -31,7 +31,7 @@ router.post(
       return res.status(400).json({errors: errors.array()});
     }
 
-    let {name, email, password} = req.body;
+    let {name, email, password,...rest} = req.body;
     try {
       //see if user exist
       let user = await User.findOne({email});
@@ -49,6 +49,7 @@ router.post(
         name: name,
         email: email,
         password: password,
+        ...rest
       });
 
       //return JWT
@@ -85,6 +86,7 @@ router.post(
 router.get('/confirm-user-email/:token', async (req, res) => {
   try {
     const {token} = req.params;
+    //token ==> user:{id,isAdmin}
     const {
       user: {id},
     } = await jwt.verify(token, config.get('jwtSecret'));

@@ -5,7 +5,6 @@ const {check, validationResult} = require('express-validator');
 const {userAuth} = require('../middlewares/auth');
 const {therapistAuth} = require('../middlewares/therapistAuthMiddleware');
 
-const UserProfile = require('../models/UserProfile');
 const User = require('../models/User');
 const Therapist = require('../models/TherapistModel');
 const Appointment = require('../models/Appointment');
@@ -29,7 +28,7 @@ router.get('/therapist/:therapist_id', async (req, res) => {
         .status(400)
         .send({msg: 'There are no appointments for this therapist'});
     }
-    res.send(appointments);
+    res.status(200).send(appointments);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -40,21 +39,22 @@ router.get('/therapist/:therapist_id', async (req, res) => {
 //@descrption      create therapist's appointments
 //@access          private
 router.post('/', therapistAuth, async (req, res) => {
-  const {date, from, to, duration, fees} = req.body;
+  const {date, from, to, fees,  ...rest} = req.body;
 
-  const therapist = await Therapist.findOne({_id: req.therapist._id});
+  const therapist = await Therapist.findById(req.therapistId);
 
-  if (!therapist || !date || !from || !to || !duration || !fees)
+  if (!therapist || !date || !from || !to  || !fees)
     return res.status(400).send({msg: 'Please fill out all the required data'});
 
+    const inputDate = new Date(date).toDateString();
   try {
     const newAppointment = new Appointment({
-      therapist: therapist._id,
-      date: date,
+      therapist: req.therapistId,
+      date: inputDate,
       from: from,
-      to: to,
-      duration: duration,
+      to:  to,
       fees: fees,
+      ...rest
     });
 
     //save new appointment to Appointment collection
@@ -74,20 +74,20 @@ router.post('/', therapistAuth, async (req, res) => {
 //@access          private
 router.put('/:appointment_id', therapistAuth, async (req, res) => {
   const {appointment_id} = req.params;
-  const {date, from, to, duration, fees, ...rest} = req.body;
+  const {date, from, to,  fees, ...rest} = req.body;
 
   const appointment = await Appointment.findById(appointment_id);
   if (!appointment) {
     return res.status(404).json({msg: 'Appointment not found'});
   }
+  const inputDate = new Date(date).toDateString();
 
   // build an appointment fields
   const appointmentFields = {
-    therapist: req.therapist._id,
-    date: !date ? appointment.date : date,
+    therapist: req.therapistId,
+    date: !date ? appointment.date : inputDate,
     from: !from ? appointment.from : from,
     to: !to ? appointment.to : to,
-    duration: !duration ? appointment.duration : duration,
     fees: !fees ? appointment.fees : fees,
     ...rest,
   };
@@ -122,7 +122,7 @@ router.delete('/:appointments_id', therapistAuth, async (req, res) => {
     }
 
     //check if therapist is authorized to delete this appointment
-    if (appointment.therapist.toString() !== req.therapist._id) {
+    if (appointment.therapist.toString() !== req.therapistId) {
       return res.status(401).json({msg: 'Therapist is not authorized'});
     }
 
@@ -148,16 +148,20 @@ router.put('/user/:appointment_id', userAuth, async (req, res) => {
   const {appointment_id} = req.params;
   const {...rest} = req.body;
 
-  const currentUserProfile = await UserProfile.findOne({user: req.user.id});
+  const user = await User.findById(req.user.id);
 
   const appointment = await Appointment.findById(appointment_id);
   if (!appointment) {
     return res.status(404).json({msg: 'Appointment not found'});
   }
 
+  //check if there are appointments for this user
+  if(user.appointments.length===0){
+    user.appointment = []
+  }
   //check if this appointment is already booked by me
   if (
-    currentUserProfile.appointments.filter(
+    user.appointments.filter(
       (app) => app._id.toString() === appointment_id
     ).length > 0
   ) {
@@ -194,10 +198,10 @@ router.put('/user/:appointment_id', userAuth, async (req, res) => {
       {new: true, upsert: true, setDefaultsOnInsert: true}
     );
 
-    currentUserProfile.appointments.unshift(updatedAppointment);
-    await currentUserProfile.save();
+    user.appointments.unshift(updatedAppointment);
+    await user.save(); 
 
-    res.json(currentUserProfile);
+    res.status(200).json(user);
   } catch (err) {
     if (err.kind === 'ObjectId') {
       return res.status(404).json({msg: 'Appointment not found'});
@@ -215,7 +219,7 @@ router.delete('/user/:appointment_id', userAuth, async (req, res) => {
   const {...rest} = req.body;
 
   const appointment = await Appointment.findById(appointment_id);
-  const currentUserProfile = await UserProfile.findOne({user: req.user.id});
+  const user = await User.findById(req.user.id);
 
   try {
     //check appointment
@@ -244,17 +248,17 @@ router.delete('/user/:appointment_id', userAuth, async (req, res) => {
       {new: true, upsert: true, setDefaultsOnInsert: true}
     );
 
-    //remove the appointment from user-profile model
+    //remove the appointment from user model
     //get remove Index
-    const removeIndex = currentUserProfile.appointments
+    const removeIndex = user.appointments
       .map((app) => app._id.toString())
       .indexOf(appointment_id);
 
-    currentUserProfile.appointments.splice(removeIndex, 1);
+    user.appointments.splice(removeIndex, 1);
 
-    await currentUserProfile.save();
+    await user.save();
 
-    res.json({msg: 'Appointment is cancelled', currentUserProfile});
+    res.json({msg: 'Appointment is cancelled', user});
   } catch (err) {
     if (err.kind === 'ObjectId') {
       return res.status(404).json({msg: 'Appointment not found'});

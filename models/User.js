@@ -22,12 +22,33 @@ const UserSchema = new mongoose.Schema(
     userImg: {
       type: String,
       default: '',
+    },  phone: {
+      type: String,
+    },
+    gender: {
+      type: String,
+      enum: ['Male', 'Female'],
+    },
+    dob:  {
+      type: String,
+    },
+
+    wallet: {
+      type: Number,
+      default: 0,
     },
     status: {
       type: String,
       enum: ['Pending', 'Active'],
       default: 'Pending',
     },
+  
+    appointments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'appointment',
+      },
+    ],
   },
   {timestamps: true}
 );
