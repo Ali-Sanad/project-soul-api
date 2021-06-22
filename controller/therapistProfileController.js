@@ -51,16 +51,14 @@ module.exports.deleteExperience = async (req, res) => {
 
 module.exports.updateEducation = async (req, res) => {
   try {
-    const therapist = await Therapist.findOne({ _id: req.therapistId });
-
-    therapist.education.unshift(req.body);
-
-    await therapist.save();
+    const therapist = await Therapist.findOne({ _id: req.params.id });
 
     if (therapist) {
-      res.status(200).json({therapist});
+      therapist.education.unshift(req.body);
+      await therapist.save();
+      res.status(200).json({ therapist });
     } else {
-      throw Error('that Therapist not exist');
+      throw Error("that Therapist not exist");
     }
 
     // res.json({ therapist });
