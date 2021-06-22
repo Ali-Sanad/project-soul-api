@@ -201,18 +201,22 @@ TherapistSchema.statics.login = async function (email, password) {
   if (therapist) {
     console.log(therapist);
     if (therapist.status == "Active") {
-      if (therapist.isAccepted) {
-        const auth = await bycrpt.compare(password, therapist.password);
-        if (auth) {
-          return therapist;
-        }
+      //    if (therapist.isAccepted) {
+      const auth = await bycrpt.compare(password, therapist.password);
+      if (auth) {
+        return therapist;
+      } else {
         throw Error("incorrect email or password ");
       }
-      throw Error("you are not allowed to log in now");
+      // } else {
+      //   throw Error("you are not allowed to log in now");
+      // }
+    } else {
+      throw Error("please confirm your email");
     }
-    throw Error("please confirm your email");
+  } else {
+    throw Error("incorrect email or password");
   }
-  throw Error("incorrect email or password");
 };
 TherapistSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");

@@ -4,6 +4,8 @@ const Therapist = require("../models/TherapistModel");
 module.exports.therapistAuth = (req, res, next) => {
   const token = req.header("Authorization");
 
+  console.log("therapist auth midddlware");
+
   //check web token exist and valid
   if (token) {
     jwt.verify(token, "mySecretJWT", (err, decoded) => {
@@ -11,6 +13,7 @@ module.exports.therapistAuth = (req, res, next) => {
         console.log(err.message);
       } else {
         req.therapistId = decoded.therapistId;
+        console.log("therapist auth decoded", req.therapistId);
         next();
       }
     });

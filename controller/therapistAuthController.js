@@ -65,8 +65,9 @@ const createToken = (id) => {
     therapistId: id,
   };
   // const maxAge = Date.now() + 3 * 24 * 60 * 60;
+
   return jwt.sign(payload, "mySecretJWT", {
-    expiresIn: "5d",
+    expiresIn: 36000,
   });
 };
 
@@ -101,7 +102,7 @@ module.exports.signup_post = async (req, res) => {
       html: confirmEmail(fname, email, confirmLink),
     });
 
-    res.status(200).json({ therapist: therapist });
+    res.status(200).json({ token });
   } catch (err) {
     console.log("catch");
     const errors = handleErrors(err);
@@ -224,17 +225,18 @@ module.exports.resetPassword = async (req, res) => {
     if (!therapist) {
       throw Error("token is invaled or has expired");
       // res.status(400).json({ err: "token is invaled or has expired" });
-    }
-    therapist.password = req.body.password;
-    therapist.confirmPassword = req.body.confirmPassword;
-    therapist.passwordResetToken = undefined;
-    therapist.passwordResetExpires = undefined;
-    await therapist.save();
-    //update changef password At
-    //log ther usrt in send jwt
+    } else {
+      therapist.password = req.body.password;
+      therapist.confirmPassword = req.body.confirmPassword;
+      therapist.passwordResetToken = undefined;
+      therapist.passwordResetExpires = undefined;
+      await therapist.save();
+      //update changef password At
+      //log ther usrt in send jwt
 
-    const token = createToken(therapist._id);
-    res.status(200).json({ token });
+      const token = createToken(therapist._id);
+      res.status(200).json({ token });
+    }
   } catch (err) {
     const errors = handleErrors(err);
 
@@ -350,14 +352,16 @@ module.exports.updataTherapist = async (req, res) => {
         runValidators: true,
       }
     );
+
     if (therapist) {
       res.status(200).json({
         status: "sucscess",
 
         therapist: therapist,
       });
+    } else {
+      throw Error("that Therapist not exist");
     }
-    throw Error("that Therapist not exist");
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
@@ -374,6 +378,8 @@ module.exports.deleteTherapist = async (req, res) => {
 
         therapist: therapist,
       });
+    } else {
+      throw Error("that Therapist not exist");
     }
     throw Error("that Therapist not exist");
   } catch (err) {
