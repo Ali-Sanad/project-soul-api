@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const { adminAuth, userAuth } = require('../middlewares/auth');
-
+const { cloudinary } = require("../utils/cloudinary");
 // Post model
 const Post = require('../models/Post');
 
@@ -64,10 +64,22 @@ router.post(
 
     try {
       const user = await User.findById(req.user.id).select('-password');
-
+      let url = "";
+      if (!req.body.data) {
+        url = "";
+      } else {
+        //cloudinary image upload
+        const fileStr = req.body.data;
+        const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+          upload_preset: "soul",
+        });
+  
+        url = uploadedResponse.secure_url;
+      }
       const newPost = new Post({
         text: req.body.text,
         category: req.body.category,
+        postImage:url,
         name: user.name,
         user: req.user.id,
       });
