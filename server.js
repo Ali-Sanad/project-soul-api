@@ -19,6 +19,13 @@ const peerServer = ExpressPeerServer(server, {
 //connect database
 connectDB();
 
+//enable cors for all routes
+app.use(cors());
+
+app.get('/', (req, res) => {
+  res.send({ status: 'API is running' });
+});
+
 app2.use("/peerjs", peerServer);
 app2.use(express.static("public"));
 
@@ -38,12 +45,6 @@ io.on("connection", (socket) => {
       io.to(roomId).emit("createMessage", message, userName);
     });
   });
-});
-//enable cors for all routes
-app.use(cors());
-
-app.get('/', (req, res) => {
-  res.send({ status: 'API is running' });
 });
 //Init middleware for bodyparser
 app.use(express.json({ limit: '50mb' }));
