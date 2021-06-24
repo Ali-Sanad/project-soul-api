@@ -163,4 +163,16 @@ router.delete("/admin/:id", adminAuth, async (req, res) => {
     return res.status(404).json({ msg: "Server error" });
   }
 });
+
+router.delete("/:id", async (req, res) => {
+  try {
+    // delete Article
+    await Article.findOneAndRemove({ _id: req.params.id });
+
+    res.json({ msg: "article deleted" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ msg: "Server error" });
+  }
+});
 module.exports = router;
