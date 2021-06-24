@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const Therapist = require('../models/TherapistModel');
 const APIFeatures = require('../utils/APIFeatures');
-const Appointments = require('../models/Appointment');
 //const sendEmail = require("../utils/email");
 const {transport} = require('../utils/emails/nodemailer.config');
 const {confirmEmail} = require('../utils/emails/confirm');
@@ -332,7 +331,7 @@ module.exports.loadTherapist = async (req, res) => {
   // console.log(req.therapistId);
   try {
     const therapist = await Therapist.findById(req.therapistId).populate(
-      'Appointments'
+      'appointments'
     );
     if (!therapist) {
       throw Error('that Therapist not exist');
