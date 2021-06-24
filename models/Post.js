@@ -47,7 +47,7 @@ const PostSchema = new Schema({
   ],
   category: {
     type: String,
-    required: true,
+    // required: true,
     enum: [
       'Anxiety disorders',
       'Mood disorders',
