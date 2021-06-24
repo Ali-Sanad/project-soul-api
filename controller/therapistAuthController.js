@@ -330,9 +330,9 @@ module.exports.getOneTherapist = async (req, res) => {
 module.exports.loadTherapist = async (req, res) => {
   // console.log(req.therapistId);
   try {
-    const therapist = await Therapist.findById(req.therapistId).populate(
-      'appointments'
-    );
+    const therapist = await Therapist.findById(req.therapistId)
+      .select('-password')
+      .populate('appointments');
     if (!therapist) {
       throw Error('that Therapist not exist');
     }
