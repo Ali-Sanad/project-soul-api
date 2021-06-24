@@ -39,22 +39,22 @@ router.get('/therapist/:therapist_id', async (req, res) => {
 //@descrption      create therapist's appointments
 //@access          private
 router.post('/', therapistAuth, async (req, res) => {
-  const {date, from, to, fees,  ...rest} = req.body;
+  const {date, from, to, fees, ...rest} = req.body;
 
   const therapist = await Therapist.findById(req.therapistId);
 
-  if (!therapist || !date || !from || !to  || !fees)
+  if (!therapist || !date || !from || !to || !fees)
     return res.status(400).send({msg: 'Please fill out all the required data'});
 
-    const inputDate = new Date(date).toDateString();
+  const inputDate = new Date(date).toDateString();
   try {
     const newAppointment = new Appointment({
       therapist: req.therapistId,
       date: inputDate,
       from: from,
-      to:  to,
+      to: to,
       fees: fees,
-      ...rest
+      ...rest,
     });
 
     //save new appointment to Appointment collection
@@ -74,7 +74,7 @@ router.post('/', therapistAuth, async (req, res) => {
 //@access          private
 router.put('/:appointment_id', therapistAuth, async (req, res) => {
   const {appointment_id} = req.params;
-  const {date, from, to,  fees, ...rest} = req.body;
+  const {date, from, to, fees, ...rest} = req.body;
 
   const appointment = await Appointment.findById(appointment_id);
   if (!appointment) {
@@ -156,14 +156,13 @@ router.put('/user/:appointment_id', userAuth, async (req, res) => {
   }
 
   //check if there are appointments for this user
-  if(user.appointments.length===0){
-    user.appointment = []
+  if (user.appointments.length === 0) {
+    user.appointment = [];
   }
   //check if this appointment is already booked by me
   if (
-    user.appointments.filter(
-      (app) => app._id.toString() === appointment_id
-    ).length > 0
+    user.appointments.filter((app) => app._id.toString() === appointment_id)
+      .length > 0
   ) {
     return res
       .status(400)
@@ -199,7 +198,7 @@ router.put('/user/:appointment_id', userAuth, async (req, res) => {
     );
 
     user.appointments.unshift(updatedAppointment);
-    await user.save(); 
+    await user.save();
 
     res.status(200).json(user);
   } catch (err) {
