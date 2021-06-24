@@ -9,18 +9,15 @@ const {sendConfirmationEmail} = require('../utils/emails/nodemailer.config');
 const User = require('../models/User');
 const {userAuth, adminAuth} = require('../middlewares/auth');
 
-
-
-
-
-
 //@ route          api/auth/loadUser
 //@descrption      user
 //@access          private
 //get authenticated user  data upon login
 router.get('/loadUser', userAuth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id)
+      .select('-password')
+      .populate('appointments');
     res.status(200).json(user);
   } catch (err) {
     console.error(err.message);
@@ -32,14 +29,14 @@ router.get('/loadUser', userAuth, async (req, res) => {
 //@descrption      admin
 //@access          private
 //get authenticated  admin data upon login
-router.get('/loadAdmin', adminAuth, async (req, res) => { 
+router.get('/loadAdmin', adminAuth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.status(200).json(user);
   } catch (err) {
     console.error(err.message);
     return res.status(500).send('Server error');
-  } 
+  }
 });
 
 //@ route          POST   api/auth
