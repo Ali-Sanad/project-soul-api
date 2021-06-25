@@ -136,7 +136,7 @@ router.post("/", therapistAuth, async (req, res) => {
     const article = await Article.create({
       therapist: id,
       name: therapist.fname,
-      therapistImg: therapist.therapist_image_url,
+      therapistImg: therapist.therapistImg,
       ArticleImg: url,
       content,
       title,

@@ -65,7 +65,7 @@ router.post(
     try {
       const user = await User.findById(req.user.id).select('-password');
       let url = "";
-      if (!req.body.data) {
+      if (!req.body.data) {npm
         url = "";
       } else {
         //cloudinary image upload
@@ -315,7 +315,7 @@ router.delete('/comment/:id/:comment_id', userAuth, async (req, res) => {
 
 router.patch('/admin/:id', adminAuth, async (req, res) => {
   try {
-    // delete Article
+    
     await Post.findOneAndUpdate({
       _id: req.params.id,
       isAccepted: req.body.isAccepted,
