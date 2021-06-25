@@ -7,6 +7,43 @@ const { therapistAuth } = require("./../middlewares/therapistAuthMiddleware");
 const { userAuth } = require("../middlewares/auth");
 const reviewRouter = require("../routes/reviews");
 const Therapist = require("../models/TherapistModel");
+const { cloudinary } = require("../utils/cloudinary");
+
+// api/therapist/uploadTherapistImage
+router.patch("/uploadTherapistImage", therapistAuth, async (req, res) => {
+  try {
+    let url = "";
+    if (!req.body.data) {
+      url = "";
+    } else {
+      const fileStr = req.body.data;
+      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+        upload_preset: "soul",
+      });
+      url = uploadedResponse.secure_url;
+    }
+    console.log("articles");
+    const id = req.therapistId;
+    // const therapist = await Therapist.findByIdAndUpdate(
+    //   (id,
+    //   { therapistImg: url },
+    //   {
+    //     new: true,
+    //     runValidators: true,
+    //   })
+    // );
+    const therapist = await Therapist.findOneAndUpdate(
+      { _id: id },
+      { $set: { therapistImg: url } },
+      { returnNewDocument: true }
+    );
+    console.log(therapist);
+    res.json(therapist);
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ msg: "Server error" });
+  }
+});
 
 //POST /tour/23242dd3/reviews
 //Get/tour/23242dd3/reviews
@@ -43,36 +80,5 @@ router.get(
   "/confirm-therapist-email/:token",
   therapistAuthController.confirmTherapistEmail
 );
-
-// api/therapist/uploadTherapistImage
-router.patch("/uploadTherapistImage", therapistAuth, async (req, res) => {
-  try {
-    let url = "";
-    if (!req.body.data) {
-      url = "";
-    } else {
-      const fileStr = req.body.data;
-      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
-        upload_preset: "soul",
-      });
-      url = uploadedResponse.secure_url;
-    }
-    console.log("articles");
-    const id = req.therapistId;
-    const therapist = await Therapist.findByIdAndUpdate(
-      (id,
-      { therapistImg: url },
-      {
-        new: true,
-        runValidators: true,
-      })
-    );
-    console.log(therapist);
-    res.json(therapist);
-  } catch (error) {
-    console.log(error.message);
-    return res.status(404).json({ msg: "Server error" });
-  }
-});
 
 module.exports = router;
