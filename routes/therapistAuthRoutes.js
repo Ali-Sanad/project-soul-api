@@ -6,6 +6,7 @@ const { therapistAuth } = require("./../middlewares/therapistAuthMiddleware");
 // const reviewController = require("../controller/reviewController");
 const { userAuth } = require("../middlewares/auth");
 const reviewRouter = require("../routes/reviews");
+const Therapist = require("../models/TherapistModel");
 
 //POST /tour/23242dd3/reviews
 //Get/tour/23242dd3/reviews
@@ -44,13 +45,8 @@ router.get(
 );
 
 // api/therapist/uploadTherapistImage
-router.post("/uploadTherapistImage", therapistAuth, async (req, res) => {
+router.patch("/uploadTherapistImage", therapistAuth, async (req, res) => {
   try {
-    console.log("articles");
-    const id = req.therapistId;
-    const therapist = await Therapist.findById(id).select("-password");
-    console.log(therapist);
-
     let url = "";
     if (!req.body.data) {
       url = "";
@@ -61,9 +57,17 @@ router.post("/uploadTherapistImage", therapistAuth, async (req, res) => {
       });
       url = uploadedResponse.secure_url;
     }
-    const TherapistImage = await Therapist.create({
-      therapistImg: url,
-    });
+    console.log("articles");
+    const id = req.therapistId;
+    const therapist = await Therapist.findByIdAndUpdate(
+      (id,
+      { therapistImg: url },
+      {
+        new: true,
+        runValidators: true,
+      })
+    );
+    console.log(therapist);
     res.json(therapist);
   } catch (error) {
     console.log(error.message);
