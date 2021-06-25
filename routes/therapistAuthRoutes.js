@@ -42,4 +42,33 @@ router.get(
   "/confirm-therapist-email/:token",
   therapistAuthController.confirmTherapistEmail
 );
+
+// api/therapist/uploadTherapistImage
+router.post("/uploadTherapistImage", therapistAuth, async (req, res) => {
+  try {
+    console.log("articles");
+    const id = req.therapistId;
+    const therapist = await Therapist.findById(id).select("-password");
+    console.log(therapist);
+
+    let url = "";
+    if (!req.body.data) {
+      url = "";
+    } else {
+      const fileStr = req.body.data;
+      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+        upload_preset: "soul",
+      });
+      url = uploadedResponse.secure_url;
+    }
+    const TherapistImage = await Therapist.create({
+      therapist_image_url: url,
+    });
+    res.json(TherapistImage);
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ msg: "Server error" });
+  }
+});
+
 module.exports = router;

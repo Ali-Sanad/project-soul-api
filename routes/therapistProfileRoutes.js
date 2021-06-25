@@ -3,6 +3,7 @@ const router = Router();
 //const therapistAuthController = require("../controller/therapistAuthController");
 const therapistProfileController = require("../controller/therapistProfileController");
 const { therapistAuth } = require("../middlewares/therapistAuthMiddleware");
+const Therapist = require("../models/TherapistModel");
 
 router.put(
   "/updateExperince/:id",
