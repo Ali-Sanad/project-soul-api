@@ -62,7 +62,7 @@ router.post("/uploadTherapistImage", therapistAuth, async (req, res) => {
       url = uploadedResponse.secure_url;
     }
     const TherapistImage = await Therapist.create({
-      therapist_image_url: url,
+      therapistImg: url,
     });
     res.json(TherapistImage);
   } catch (error) {
