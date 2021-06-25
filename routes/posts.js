@@ -195,7 +195,7 @@ router.delete('/:id', userAuth, async (req, res) => {
 // @route    PUT api/posts/like/:id
 // @desc     Like a post
 // @access   Private
-router.patch('/like/:id', userAuth, async (req, res) => {
+router.put('/like/:id', userAuth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -218,7 +218,7 @@ router.patch('/like/:id', userAuth, async (req, res) => {
 // @route    PUT api/posts/unlike/:id
 // @desc     Unlike a post
 // @access   Private
-router.patch('/unlike/:id', userAuth, async (req, res) => {
+router.put('/unlike/:id', userAuth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
