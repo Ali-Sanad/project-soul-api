@@ -39,21 +39,28 @@ router.get('/therapist/:therapist_id', async (req, res) => {
 //@descrption      create therapist's appointments
 //@access          private
 router.post('/', therapistAuth, async (req, res) => {
-  const {date, from, to, fees, ...rest} = req.body;
+  const {date, from, to, ...rest} = req.body;
 
   const therapist = await Therapist.findById(req.therapistId);
 
-  if (!therapist || !date || !from || !to || !fees)
+  if (!therapist || !date || !from || !to)
     return res.status(400).send({msg: 'Please fill out all the required data'});
 
-  const inputDate = new Date(date).toDateString();
+  /*new Intl.DateTimeFormat("en" , { 
+  timeStyle: "short"
+}).format(new Date(`2021-7-1 ${time} `))*/
+
+  const timeFormatter = (date, time) =>
+    new Intl.DateTimeFormat('en', {
+      timeStyle: 'short',
+    }).format(new Date(`${date} ${time}`));
+
   try {
     const newAppointment = new Appointment({
       therapist: req.therapistId,
-      date: inputDate,
-      from: from,
-      to: to,
-      fees: fees,
+      date: date,
+      from: timeFormatter(date, from),
+      to: timeFormatter(date, to),
       ...rest,
     });
 
@@ -74,21 +81,23 @@ router.post('/', therapistAuth, async (req, res) => {
 //@access          private
 router.put('/:appointment_id', therapistAuth, async (req, res) => {
   const {appointment_id} = req.params;
-  const {date, from, to, fees, ...rest} = req.body;
+  const {date, from, to, ...rest} = req.body;
 
   const appointment = await Appointment.findById(appointment_id);
   if (!appointment) {
     return res.status(404).json({msg: 'Appointment not found'});
   }
-  const inputDate = new Date(date).toDateString();
+  const timeFormatter = (date, time) =>
+    new Intl.DateTimeFormat('en', {
+      timeStyle: 'short',
+    }).format(new Date(`${date} ${time}`));
 
   // build an appointment fields
   const appointmentFields = {
     therapist: req.therapistId,
-    date: !date ? appointment.date : inputDate,
-    from: !from ? appointment.from : from,
-    to: !to ? appointment.to : to,
-    fees: !fees ? appointment.fees : fees,
+    date: !date ? appointment.date : date,
+    from: !from ? appointment.from : timeFormatter(date, from),
+    to: !to ? appointment.to : timeFormatter(date, to),
     ...rest,
   };
 
