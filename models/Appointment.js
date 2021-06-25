@@ -15,10 +15,6 @@ const AppointmentSchema = new mongoose.Schema(
     to: {
       type: String,
     },
-    // duration: {
-    //   type: Number,
-    //   default: 0,
-    // },
     fees: {
       type: Number,
     },
