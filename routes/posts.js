@@ -65,7 +65,7 @@ router.post(
     try {
       const user = await User.findById(req.user.id).select('-password');
       let url = "";
-      if (!req.body.data) {
+      if (!req.body.data) {npm
         url = "";
       } else {
         //cloudinary image upload
@@ -195,7 +195,7 @@ router.delete('/:id', userAuth, async (req, res) => {
 // @route    PUT api/posts/like/:id
 // @desc     Like a post
 // @access   Private
-router.put('/like/:id', userAuth, async (req, res) => {
+router.patch('/like/:id', userAuth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -218,7 +218,7 @@ router.put('/like/:id', userAuth, async (req, res) => {
 // @route    PUT api/posts/unlike/:id
 // @desc     Unlike a post
 // @access   Private
-router.put('/unlike/:id', userAuth, async (req, res) => {
+router.patch('/unlike/:id', userAuth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
