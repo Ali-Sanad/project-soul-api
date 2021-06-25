@@ -37,8 +37,8 @@ exports.createReview = async (req, res) => {
     if (!req.body.therapist) req.body.therapist = req.params.therapistId;
     if (!req.body.user) req.body.user = req.user.id;
     const review = await Review.create(req.body);
-//const therapist=await  Therapist.findById(req.body.therapist)
-//onsole.log("ther",therapist)
+    //const therapist=await  Therapist.findById(req.body.therapist)
+    //onsole.log("ther",therapist)
     res.status(200).json(review);
   } catch (err) {
     console.log("err", err);
@@ -64,10 +64,10 @@ exports.updateReview = async (req, res) => {
 exports.deleteReview = async (req, res) => {
   try {
     const review = await Review.findByIdAndDelete(req.params.id);
-    if (review) {
+    if (!review) {
       throw Error("that review not exist");
     }
-    res.status(200).json({msg: 'Appointment removed from schedule'});
+    res.status(200).json({ msg: "Appointment removed from schedule" });
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
