@@ -6,9 +6,8 @@ const { therapistAuth } = require("../middlewares/therapistAuthMiddleware");
 const Therapist = require("../models/TherapistModel");
 
 router.put(
-  "/updateExperince/:id",
-
-  therapistProfileController.updateExperince
+  "/updateExperience/:id",
+  therapistProfileController.updateExperience
 );
 router.delete(
   "/deleteExperience/:exp_id",

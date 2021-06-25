@@ -308,16 +308,15 @@ module.exports.getAllTherapists = async (req, res) => {
 
 module.exports.getOneTherapist = async (req, res) => {
   try {
-    const therapist = await Therapist.findById(req.params.id).populate(
-      'reviews'
-    );
+    const therapist = await Therapist.findById(req.params.id)
+      .populate('appointments')
+      .populate('reviews');
     if (!therapist) {
       throw Error('that Therapist not exist');
     }
 
     res.status(200).json({
       status: 'sucscess',
-
       therapist: therapist,
     });
   } catch (err) {
