@@ -47,6 +47,7 @@ const TherapistSchema = new mongoose.Schema(
     },
     fees: {
       type: Number,
+      default: 150,
     },
     // passwordCgangedAt: Date,
     passwordResetToken: String,
