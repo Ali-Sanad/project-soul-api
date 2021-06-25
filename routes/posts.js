@@ -315,7 +315,7 @@ router.delete('/comment/:id/:comment_id', userAuth, async (req, res) => {
 
 router.patch('/admin/:id', adminAuth, async (req, res) => {
   try {
-    // delete Article
+    
     await Post.findOneAndUpdate({
       _id: req.params.id,
       isAccepted: req.body.isAccepted,
