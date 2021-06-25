@@ -64,7 +64,7 @@ router.post("/uploadTherapistImage", therapistAuth, async (req, res) => {
     const TherapistImage = await Therapist.create({
       therapistImg: url,
     });
-    res.json(TherapistImage);
+    res.json(therapist);
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ msg: "Server error" });
