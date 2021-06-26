@@ -7,17 +7,6 @@ const { transport } = require('../utils/emails/nodemailer.config');
 const { confirmEmail } = require('../utils/emails/confirm');
 const { resetPassword } = require('../utils/emails/reset-password');
 
-//upload pdf
-const http = require('http');
-const util = require('util');
-
-// https://github.com/node-formidable/node-formidable
-// const Formidable = require('formidable');
-
-//https://www.npmjs.com/package/dotenv
-const cloudinary = require('cloudinary');
-require('dotenv').config();
-
 const handleErrors = (err) => {
   let errors = {
     // fname: "",
@@ -325,6 +314,12 @@ module.exports.getOneTherapist = async (req, res) => {
     if (!therapist) {
       throw Error('that Therapist not exist');
     }
+    //sort appointments ascending by date
+    if (therapist.appointments.length > 0) {
+      therapist.appointments.sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      );
+    }
 
     res.status(200).json({
       status: 'sucscess',
@@ -364,33 +359,6 @@ module.exports.updataTherapist = async (req, res) => {
         runValidators: true,
       }
     );
-
-    // http.createServer((req, res) => {
-    //   if (req.url === '/uploadCv' && req.method.toLowerCase() === 'post') {
-    //     // parse a file upload
-    //     const form = new Formidable();
-
-    //     form.parse(req, (err, fields, files) => {
-    //       //https://cloudinary.com/documentation/upload_images
-    //       cloudinary.uploader.upload(files.upload.path, (result) => {
-    //         console.log(result);
-    //         if (result.public_id) {
-    //           res.writeHead(200, { 'content-type': 'text/plain' });
-    //           res.write('received upload:\n\n');
-    //           res.end(util.inspect({ fields: fields, files: files }));
-    //         }
-    //       });
-    //     });
-    //     return;
-    //   }
-    // });
-    // //upload image
-    // const fileStr = req.body.data;
-    // const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-    //   upload_preset: 'dev_setups',
-    // });
-    // console.log(uploadResponse);
-    // res.json({ msg: 'yaya' });
 
     if (therapist) {
       res.status(200).json({
