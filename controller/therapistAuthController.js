@@ -351,6 +351,19 @@ module.exports.loadTherapist = async (req, res) => {
 
 module.exports.updataTherapist = async (req, res) => {
   try {
+    let url = '';
+    if (!req.body.data) {
+      url = '';
+    } else {
+      //cloudinary image upload
+      const fileStr = req.body.data;
+      const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+        upload_preset: 'soul',
+      });
+
+      url = uploadedResponse.secure_url;
+    }
+
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
       req.body,

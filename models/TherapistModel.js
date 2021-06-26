@@ -103,9 +103,6 @@ const TherapistSchema = new mongoose.Schema(
     uploadCv: {
       type: String,
     },
-    uploadimg: {
-      type: String,
-    },
 
     experience: [
       {
