@@ -67,7 +67,7 @@ router.post('/', therapistAuth, async (req, res) => {
     //save new appointment to Appointment collection
     await newAppointment.save();
     //save new appointment to therapist
-    therapist.appointments.unshift(newAppointment);
+    therapist.appointments.push(newAppointment);
     await therapist.save();
     res.status(200).json(newAppointment);
   } catch (err) {
