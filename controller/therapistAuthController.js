@@ -1,11 +1,22 @@
-const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
-const Therapist = require("../models/TherapistModel");
-const APIFeatures = require("../utils/APIFeatures");
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const Therapist = require('../models/TherapistModel');
+const APIFeatures = require('../utils/APIFeatures');
 //const sendEmail = require("../utils/email");
-const { transport } = require("../utils/emails/nodemailer.config");
-const { confirmEmail } = require("../utils/emails/confirm");
-const { resetPassword } = require("../utils/emails/reset-password");
+const { transport } = require('../utils/emails/nodemailer.config');
+const { confirmEmail } = require('../utils/emails/confirm');
+const { resetPassword } = require('../utils/emails/reset-password');
+
+//upload pdf
+const http = require('http');
+const util = require('util');
+
+// https://github.com/node-formidable/node-formidable
+// const Formidable = require('formidable');
+
+//https://www.npmjs.com/package/dotenv
+const cloudinary = require('cloudinary');
+require('dotenv').config();
 
 const handleErrors = (err) => {
   let errors = {
@@ -17,39 +28,39 @@ const handleErrors = (err) => {
   };
   //duplicateerror code
   if (err.code === 11000) {
-    errors.err = "email already exist..";
+    errors.err = 'email already exist..';
     return errors;
   }
 
-  if (err.message.includes("you are not allowed to log in now")) {
-    errors.err = "you are not allowed to log in nowd";
+  if (err.message.includes('you are not allowed to log in now')) {
+    errors.err = 'you are not allowed to log in nowd';
   }
   //incorrect email or password
-  if (err.message.includes("incorrect email or password")) {
-    errors.err = "incorrect email or password";
+  if (err.message.includes('incorrect email or password')) {
+    errors.err = 'incorrect email or password';
   }
-  if (err.message.includes("password are not the same")) {
-    errors.err = "password are not the same";
+  if (err.message.includes('password are not the same')) {
+    errors.err = 'password are not the same';
   }
-  if (err.message.includes("token is invaled or has expired")) {
-    errors.err = "token is invaled or has expired";
+  if (err.message.includes('token is invaled or has expired')) {
+    errors.err = 'token is invaled or has expired';
   }
-  if (err.message.includes("please confirm your email")) {
-    errors.err = "please confirm your email";
+  if (err.message.includes('please confirm your email')) {
+    errors.err = 'please confirm your email';
   }
 
-  if (err.message.includes("there is no user with email address")) {
-    errors.err = "there is no user with email address";
+  if (err.message.includes('there is no user with email address')) {
+    errors.err = 'there is no user with email address';
   }
-  if (err.message.includes("password are not the same")) {
-    errors.err = "password are not the same";
+  if (err.message.includes('password are not the same')) {
+    errors.err = 'password are not the same';
   }
-  if (err.message.includes("Your current password is wrong")) {
-    errors.err = "Your current password is wrong";
+  if (err.message.includes('Your current password is wrong')) {
+    errors.err = 'Your current password is wrong';
   }
 
   //validation errors
-  if (err.message.includes("Therapist validation failed")) {
+  if (err.message.includes('Therapist validation failed')) {
     Object.values(err.errors).forEach(({ properties }) => {
       errors[properties.path] = properties.message;
     });
@@ -66,7 +77,7 @@ const createToken = (id) => {
   };
   // const maxAge = Date.now() + 3 * 24 * 60 * 60;
 
-  return jwt.sign(payload, "mySecretJWT", {
+  return jwt.sign(payload, 'mySecretJWT', {
     expiresIn: 36000,
   });
 };
@@ -82,7 +93,7 @@ module.exports.signup_post = async (req, res) => {
       confirmPassword,
     });
     const token = createToken(therapist._id);
-    console.log("token", token);
+    console.log('token', token);
 
     // const message = "please verfiy ypur account ";
     // const options = {
@@ -93,18 +104,18 @@ module.exports.signup_post = async (req, res) => {
     // await sendEmail(options);
     // res.status(201).json({ token });
     const confirmLink = `${process.env.API_URI}/api/therapist/confirm-therapist-email/${token}`;
-    console.log("confirm", confirmLink);
+    console.log('confirm', confirmLink);
     //send email to complete regiseration
     await transport.sendMail({
       from: `Soul-Team 👻 <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Please confirm your account",
+      subject: 'Please confirm your account',
       html: confirmEmail(fname, email, confirmLink),
     });
 
     res.status(200).json({ token });
   } catch (err) {
-    console.log("catch");
+    console.log('catch');
     const errors = handleErrors(err);
     // console.log(err);
     res.status(400).json({ errors });
@@ -114,16 +125,16 @@ module.exports.signup_post = async (req, res) => {
 module.exports.confirmTherapistEmail = async (req, res) => {
   try {
     const { token } = req.params;
-    const { therapistId } = await jwt.verify(token, "mySecretJWT");
-    console.log("therapost", therapistId);
+    const { therapistId } = await jwt.verify(token, 'mySecretJWT');
+    console.log('therapost', therapistId);
     //    console.log("res", result);
-    const therapist = await Therapist.findById(therapistId).select("-password");
+    const therapist = await Therapist.findById(therapistId).select('-password');
     if (!therapist) {
-      return res.status(404).send({ msg: "therapist Not found." });
+      return res.status(404).send({ msg: 'therapist Not found.' });
     }
 
     //update user email status to active
-    therapist.status = "Active";
+    therapist.status = 'Active';
     await therapist.save();
     //redirect to a verified email page after email verified to login into the website as verified account
     res
@@ -135,7 +146,7 @@ module.exports.confirmTherapistEmail = async (req, res) => {
     console.log(err.message);
     const errors = handleErrors(err);
 
-    res.status(500).send("Server error");
+    res.status(500).send('Server error');
   }
 };
 
@@ -148,7 +159,7 @@ module.exports.login_post = async (req, res) => {
     res.status(200).json({ token });
   } catch (err) {
     //const errors = handleErrors(err);
-    console.log("catch");
+    console.log('catch');
     const errors = handleErrors(err);
     console.log(err);
     res.status(400).json({ errors });
@@ -158,15 +169,15 @@ module.exports.login_post = async (req, res) => {
 module.exports.logout_get = (req, res) => {};
 module.exports.forgotPassword = async (req, res) => {
   try {
-    console.log("forget");
+    console.log('forget');
     //get user baset on posted email
     const therapist = await Therapist.findOne({ email: req.body.email });
     if (!therapist) {
-      throw Error("there is no user with email address");
+      throw Error('there is no user with email address');
     }
     //generateToken
     const resetToken = therapist.createPasswordResetToken();
-    console.log("resttoke", resetToken);
+    console.log('resttoke', resetToken);
     await therapist.save({ validateBeforeSave: false });
     // res.status(200).json({ resetToken });
 
@@ -189,18 +200,18 @@ module.exports.forgotPassword = async (req, res) => {
     await transport.sendMail({
       from: `Soul-Team  <${process.env.EMAIL_USER}>`,
       to: req.body.email,
-      subject: "Password Reset",
+      subject: 'Password Reset',
       html: resetPassword(therapist.fname, resetPasswordLink),
     });
     res
       .status(200)
-      .json({ msg: "Reset password resquest has been sent successfully" });
+      .json({ msg: 'Reset password resquest has been sent successfully' });
     // res.status(200).json({
     //   status: "sucss",
     //   message,
     // });
   } catch (err) {
-    console.log("errr", err);
+    console.log('errr', err);
     // therapist.passwordResetToken = undefined;
     //therapist.passwordResetExpires = undefined;
     const errors = handleErrors(err);
@@ -214,16 +225,16 @@ module.exports.resetPassword = async (req, res) => {
     //get user based on token
 
     const hasedToken = crypto
-      .createHash("sha256")
+      .createHash('sha256')
       .update(req.params.token)
-      .digest("hex");
+      .digest('hex');
     const therapist = await Therapist.findOne({
       passwordResetToken: hasedToken,
       passwordResetExpires: { $gt: Date.now() },
     });
     //if token has not expires and ther ie a user  set new password
     if (!therapist) {
-      throw Error("token is invaled or has expired");
+      throw Error('token is invaled or has expired');
       // res.status(400).json({ err: "token is invaled or has expired" });
     } else {
       therapist.password = req.body.password;
@@ -249,7 +260,7 @@ module.exports.updatePassword = async (req, res) => {
   //get user
   try {
     const therapist = await Therapist.findById(req.therapistId).select(
-      "+password"
+      '+password'
     );
     //check if current pass is correct
     if (
@@ -258,7 +269,7 @@ module.exports.updatePassword = async (req, res) => {
         therapist.password
       ))
     ) {
-      throw Error("Your current password is wrong", 401);
+      throw Error('Your current password is wrong', 401);
       //if correct
     }
     therapist.password = req.body.password;
@@ -267,7 +278,7 @@ module.exports.updatePassword = async (req, res) => {
     //log in password send jwt
     const token = createToken(therapist._id);
     res.status(200).json({
-      status: "sucess",
+      status: 'sucess',
       token,
     });
   } catch (err) {
@@ -278,8 +289,8 @@ module.exports.updatePassword = async (req, res) => {
 };
 
 module.exports.aliasTopRatedTherapist = (req, res, next) => {
-  req.query.limit = "5";
-  req.query.sort = "ratingsAverage";
+  req.query.limit = '5';
+  req.query.sort = 'ratingsAverage';
 
   //req.query.fields = "fname,lname,ratingsQunatity,ratingsAverage";
   next();
@@ -295,7 +306,7 @@ module.exports.getAllTherapists = async (req, res) => {
     //send response
 
     res.status(200).json({
-      status: "sucscess",
+      status: 'sucscess',
       results: therapists.length,
       therapists: therapists,
     });
@@ -309,14 +320,14 @@ module.exports.getAllTherapists = async (req, res) => {
 module.exports.getOneTherapist = async (req, res) => {
   try {
     const therapist = await Therapist.findById(req.params.id)
-      .populate("appointments")
-      .populate("reviews");
+      .populate('appointments')
+      .populate('reviews');
     if (!therapist) {
-      throw Error("that Therapist not exist");
+      throw Error('that Therapist not exist');
     }
 
     res.status(200).json({
-      status: "sucscess",
+      status: 'sucscess',
       therapist: therapist,
     });
   } catch (err) {
@@ -330,10 +341,10 @@ module.exports.loadTherapist = async (req, res) => {
   // console.log(req.therapistId);
   try {
     const therapist = await Therapist.findById(req.therapistId)
-      .select("-password")
-      .populate("appointments");
+      .select('-password')
+      .populate('appointments');
     if (!therapist) {
-      throw Error("that Therapist not exist");
+      throw Error('that Therapist not exist');
     }
     res.status(200).json(therapist);
   } catch (err) {
@@ -354,14 +365,41 @@ module.exports.updataTherapist = async (req, res) => {
       }
     );
 
+    // http.createServer((req, res) => {
+    //   if (req.url === '/uploadCv' && req.method.toLowerCase() === 'post') {
+    //     // parse a file upload
+    //     const form = new Formidable();
+
+    //     form.parse(req, (err, fields, files) => {
+    //       //https://cloudinary.com/documentation/upload_images
+    //       cloudinary.uploader.upload(files.upload.path, (result) => {
+    //         console.log(result);
+    //         if (result.public_id) {
+    //           res.writeHead(200, { 'content-type': 'text/plain' });
+    //           res.write('received upload:\n\n');
+    //           res.end(util.inspect({ fields: fields, files: files }));
+    //         }
+    //       });
+    //     });
+    //     return;
+    //   }
+    // });
+    // //upload image
+    // const fileStr = req.body.data;
+    // const uploadResponse = await cloudinary.uploader.upload(fileStr, {
+    //   upload_preset: 'dev_setups',
+    // });
+    // console.log(uploadResponse);
+    // res.json({ msg: 'yaya' });
+
     if (therapist) {
       res.status(200).json({
-        status: "sucscess",
+        status: 'sucscess',
 
         therapist: therapist,
       });
     } else {
-      throw Error("that Therapist not exist");
+      throw Error('that Therapist not exist');
     }
   } catch (err) {
     const errors = handleErrors(err);
@@ -375,14 +413,14 @@ module.exports.deleteTherapist = async (req, res) => {
     const therapist = await Therapist.findByIdAndDelete(req.params.id);
     if (therapist) {
       res.status(200).json({
-        status: "sucscess",
+        status: 'sucscess',
 
         therapist: therapist,
       });
     } else {
-      throw Error("that Therapist not exist");
+      throw Error('that Therapist not exist');
     }
-    throw Error("that Therapist not exist");
+    throw Error('that Therapist not exist');
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
