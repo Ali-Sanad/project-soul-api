@@ -47,7 +47,7 @@ router.post('/', userAuth, async (req, res) => {
       //update apoointment paymentStatus to be true then confirm booking
       const appointmentFields = {
         booking: {
-          user: req.user.id,
+          user: user,
           isBooked: true,
         },
         paymentStatus: true,
