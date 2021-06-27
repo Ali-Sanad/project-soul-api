@@ -29,7 +29,7 @@ module.exports.updateExperience = async (req, res) => {
 
     const therapist = await Therapist.findOne({ _id: id });
 
-    therapist.experience.unshift(req.body);
+    //therapist.experience.unshift(req.body);
 
     if (therapist) {
       therapist.experience.unshift(req.body);

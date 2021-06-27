@@ -21,6 +21,10 @@ connectDB();
 
 //enable cors for all routes
 app.use(cors());
+//upload image
+// app.use(express.static('public'));
+// app.use(express.json({ limit: '50mb' }));
+// app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.get('/', (req, res) => {
   res.send({status: 'API is running'});
