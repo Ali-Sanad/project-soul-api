@@ -17,6 +17,7 @@ const AppointmentSchema = new mongoose.Schema(
     },
     fees: {
       type: Number,
+      default: 150,
     },
     booking: {
       user: {
