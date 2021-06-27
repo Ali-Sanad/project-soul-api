@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 // Create Schema
 const PostSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'users',
+    ref: "users",
   },
   text: {
     type: String,
@@ -16,13 +16,13 @@ const PostSchema = new Schema({
   },
   postImage: {
     type: String,
-    default: '',
+    default: "",
   },
   likes: [
     {
       user: {
         type: Schema.Types.ObjectId,
-        ref: 'users',
+        ref: "users",
       },
     },
   ],
@@ -30,7 +30,7 @@ const PostSchema = new Schema({
     {
       user: {
         type: Schema.Types.ObjectId,
-        ref: 'users',
+        ref: "users",
       },
       text: {
         type: String,
@@ -49,20 +49,23 @@ const PostSchema = new Schema({
     type: String,
     // required: true,
     enum: [
-      'Anxiety disorders',
-      'Mood disorders',
-      'Psychotic disorders',
-      'Obsessive-compulsive disorder',
-      'Post-traumatic stress disorder',
-      'Stress response syndromes',
-      'Dissociative disorders',
-      'Factitious disorders',
-      'Somatic symptom disorders',
+      "Anxiety disorders",
+      "Mood disorders",
+      "Psychotic disorders",
+      "Obsessive-compulsive disorder",
+      "Post-traumatic stress disorder",
+      "Stress response syndromes",
+      "Dissociative disorders",
+      "Factitious disorders",
+      "Somatic symptom disorders",
     ],
   },
   isAccepted: {
-    type: Boolean,
-    default: false,
+    // type: Boolean,
+    // default: false,
+    type: String,
+    enum: ["Pending", "Accepted", "Rejected"],
+    default: "Pending",
   },
   date: {
     type: Date,
@@ -70,4 +73,4 @@ const PostSchema = new Schema({
   },
 });
 
-module.exports = Post = mongoose.model('post', PostSchema);
+module.exports = Post = mongoose.model("post", PostSchema);
