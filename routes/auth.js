@@ -17,7 +17,25 @@ router.get('/loadUser', userAuth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
       .select('-password')
-      .populate('appointments');
+      .populate('appointments')
+      .populate({
+        path: 'appointments',
+        populate: {
+          path: 'therapist',
+          model: 'Therapist',
+        },
+      })
+      .populate({
+        path: 'appointments',
+        populate: {
+          path: 'booking',
+          populate: {
+            path: 'user',
+            model: 'user',
+          },
+        },
+      });
+
     //sort appointments by date
     if (user.appointments.length > 0) {
       user.appointments.sort((a, b) => new Date(a.date) - new Date(b.date));
