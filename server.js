@@ -4,15 +4,15 @@ const app = express();
 const app2 = express();
 
 const cors = require('cors');
-const server = require("http").Server(app2);
-const { v4: uuidv4 } = require("uuid");
-app2.set("view engine", "ejs");
-const io = require("socket.io")(server, {
+const server = require('http').Server(app2);
+const {v4: uuidv4} = require('uuid');
+app2.set('view engine', 'ejs');
+const io = require('socket.io')(server, {
   cors: {
-    origin: '*'
-  }
+    origin: '*',
+  },
 });
-const { ExpressPeerServer } = require("peer");
+const {ExpressPeerServer} = require('peer');
 const peerServer = ExpressPeerServer(server, {
   debug: true,
 });
@@ -23,32 +23,32 @@ connectDB();
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send({ status: 'API is running' });
+  res.send({status: 'API is running'});
 });
 
-app2.use("/peerjs", peerServer);
-app2.use(express.static("public"));
+app2.use('/peerjs', peerServer);
+app2.use(express.static('public'));
 
-app2.get("/", (req, res) => {
+app2.get('/', (req, res) => {
   res.redirect(`/${uuidv4()}`);
 });
 
-app2.get("/:room", (req, res) => {
-  res.render("room", { roomId: req.params.room });
+app2.get('/:room', (req, res) => {
+  res.render('room', {roomId: req.params.room});
 });
 
-io.on("connection", (socket) => {
-  socket.on("join-room", (roomId, userId, userName) => {
+io.on('connection', (socket) => {
+  socket.on('join-room', (roomId, userId, userName) => {
     socket.join(roomId);
-    socket.to(roomId).broadcast.emit("user-connected", userId);
-    socket.on("message", (message) => {
-      io.to(roomId).emit("createMessage", message, userName);
+    socket.to(roomId).broadcast.emit('user-connected', userId);
+    socket.on('message', (message) => {
+      io.to(roomId).emit('createMessage', message, userName);
     });
   });
 });
 //Init middleware for bodyparser
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 //@define routes
 app.use('/api/auth', require('./routes/auth'));
@@ -65,6 +65,7 @@ app.use('/api/session', require('./routes/video'));
 app.use('/api/conversations', require('./routes/conversation'));
 app.use('/api/messages', require('./routes/message'));
 app.use('/api/posts', require('./routes/posts'));
+app.use('/api/payment', require('./routes/payment'));
 //serve static assets in production
 // if (process.env.NODE_ENV === 'production') {
 //   //set static folder
@@ -76,7 +77,6 @@ app.use('/api/posts', require('./routes/posts'));
 
 const PORT = process.env.PORT || 5000;
 const PORT2 = process.env.PORT2 || 3030;
-
 
 app.listen(PORT, () => {
   console.log(`Server started on port:${PORT}`);
