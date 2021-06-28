@@ -17,6 +17,7 @@ const AppointmentSchema = new mongoose.Schema(
     },
     fees: {
       type: Number,
+      default: 150,
     },
     booking: {
       user: {
@@ -29,6 +30,18 @@ const AppointmentSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
+      isCompeleted: {
+        type: Boolean,
+        default: false,
+      },
+      isCancelled: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    paymentStatus: {
+      type: Boolean,
+      default: false,
     },
   },
   {timestamps: true}

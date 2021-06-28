@@ -60,7 +60,7 @@ router.post("/login", therapistAuthController.login_post);
 router.get("/logout", therapistAuthController.logout_get);
 
 router.post("/forgotpassword", therapistAuthController.forgotPassword);
-router.patch("/resetpassword/:token", therapistAuthController.resetPassword);
+router.put("/resetpassword/:token", therapistAuthController.resetPassword);
 router.patch(
   "/updatemypassword",
   therapistAuth,

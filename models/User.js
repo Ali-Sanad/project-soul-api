@@ -22,14 +22,15 @@ const UserSchema = new mongoose.Schema(
     userImg: {
       type: String,
       default: '',
-    },  phone: {
+    },
+    phone: {
       type: String,
     },
     gender: {
       type: String,
       enum: ['Male', 'Female'],
     },
-    dob:  {
+    dob: {
       type: String,
     },
 
@@ -42,7 +43,7 @@ const UserSchema = new mongoose.Schema(
       enum: ['Pending', 'Active'],
       default: 'Pending',
     },
-  
+
     appointments: [
       {
         type: mongoose.Schema.Types.ObjectId,

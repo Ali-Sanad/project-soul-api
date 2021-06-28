@@ -17,7 +17,7 @@ const Appointment = require('../models/Appointment');
 router.get('/therapist/:therapist_id', async (req, res) => {
   const {therapist_id} = req.params;
   try {
-    //get all the appintments for this therapist
+    //get all the appointments for this therapist
     const appointments = await Appointment.find({
       therapist: therapist_id,
     });
@@ -57,7 +57,7 @@ router.post('/', therapistAuth, async (req, res) => {
 
   try {
     const newAppointment = new Appointment({
-      therapist: req.therapistId,
+      therapist: therapist,
       date: date,
       from: timeFormatter(date, from),
       to: timeFormatter(date, to),
@@ -83,6 +83,8 @@ router.put('/:appointment_id', therapistAuth, async (req, res) => {
   const {appointment_id} = req.params;
   const {date, from, to, ...rest} = req.body;
 
+  const therapist = await Therapist.findById(req.therapistId);
+
   const appointment = await Appointment.findById(appointment_id);
   if (!appointment) {
     return res.status(404).json({msg: 'Appointment not found'});
@@ -94,7 +96,7 @@ router.put('/:appointment_id', therapistAuth, async (req, res) => {
 
   // build an appointment fields
   const appointmentFields = {
-    therapist: req.therapistId,
+    therapist: therapist,
     date: !date ? appointment.date : date,
     from: !from ? appointment.from : timeFormatter(date, from),
     to: !to ? appointment.to : timeFormatter(date, to),
@@ -131,7 +133,7 @@ router.delete('/:appointments_id', therapistAuth, async (req, res) => {
     }
 
     //check if therapist is authorized to delete this appointment
-    if (appointment.therapist.toString() !== req.therapistId) {
+    if (appointment.therapist._id.toString() !== req.therapistId) {
       return res.status(401).json({msg: 'Therapist is not authorized'});
     }
 
@@ -153,71 +155,72 @@ router.delete('/:appointments_id', therapistAuth, async (req, res) => {
 //@ route         PUT api/appointments/user/
 //@descrption      create user's appointments
 //@access          private
-router.put('/user/:appointment_id', userAuth, async (req, res) => {
-  const {appointment_id} = req.params;
-  const {...rest} = req.body;
+// router.put('/user/:appointment_id', userAuth, async (req, res) => {
+//   const {appointment_id} = req.params;
+//   const {...rest} = req.body;
 
-  const user = await User.findById(req.user.id);
+//   const user = await User.findById(req.user.id);
 
-  const appointment = await Appointment.findById(appointment_id);
-  if (!appointment) {
-    return res.status(404).json({msg: 'Appointment not found'});
-  }
+//   const appointment = await Appointment.findById(appointment_id);
+//   if (!appointment) {
+//     return res.status(404).json({msg: 'Appointment not found'});
+//   }
 
-  //check if there are appointments for this user
-  if (user.appointments.length === 0) {
-    user.appointment = [];
-  }
-  //check if this appointment is already booked by me
-  if (
-    user.appointments.filter((app) => app._id.toString() === appointment_id)
-      .length > 0
-  ) {
-    return res
-      .status(400)
-      .json({msg: 'Appointment already has been booked by you'});
-  }
-  //check if this appointment is already booked by another user
-  if (appointment.booking.isBooked) {
-    return res
-      .status(400)
-      .json({msg: 'Appointment already has been booked by another user'});
-  }
+//   //check if there are appointments for this user
+//   if (user.appointments.length === 0) {
+//     user.appointment = [];
+//   }
+//   //check if this appointment is already booked by me
+//   // if (
+//   //   user.appointments.filter((app) => app._id.toString() === appointment_id)
+//   //     .length > 0
+//   // ) {
+//   //   return res
+//   //     .status(400)
+//   //     .json({msg: 'Appointment already has been booked by you'});
+//   // }
 
-  //==>> Before write appointment data in the database, the user must be
-  // directed to payment first********************************************
-  // ********************************************************************
-  //*******************************************************************
+//   //check if this appointment is already booked by another user
+//   // if (appointment.booking.isBooked) {
+//   //   return res
+//   //     .status(400)
+//   //     .json({msg: 'Appointment already has been booked by another user'});
+//   // }
 
-  // build an appointment fields for the user
-  const appointmentFields = {
-    booking: {
-      user: req.user.id,
-      isBooked: true,
-    },
-    ...rest,
-  };
+//   //==>> Before write appointment data in the database, the user must be
+//   // directed to payment first********************************************
+//   // ********************************************************************
+//   //*******************************************************************
 
-  try {
-    //upsert creates new doc if no match is found
-    const updatedAppointment = await Appointment.findOneAndUpdate(
-      {_id: appointment_id},
-      {$set: appointmentFields},
-      {new: true, upsert: true, setDefaultsOnInsert: true}
-    );
+//   // build an appointment fields for the user
+//   const appointmentFields = {
+//     booking: {
+//       user: req.user.id,
+//       isBooked: true,
+//     },
+//     ...rest,
+//   };
 
-    user.appointments.unshift(updatedAppointment);
-    await user.save();
+//   try {
+//     //upsert creates new doc if no match is found
+//     const updatedAppointment = await Appointment.findOneAndUpdate(
+//       {_id: appointment_id},
+//       {$set: appointmentFields},
+//       {new: true, upsert: true, setDefaultsOnInsert: true}
+//     );
 
-    res.status(200).json(user);
-  } catch (err) {
-    if (err.kind === 'ObjectId') {
-      return res.status(404).json({msg: 'Appointment not found'});
-    }
-    console.error(err.message);
-    return res.status(500).send('Server error');
-  }
-});
+//     user.appointments.unshift(updatedAppointment);
+//     await user.save();
+
+//     res.status(200).json(user);
+//   } catch (err) {
+//     if (err.kind === 'ObjectId') {
+//       return res.status(404).json({msg: 'Appointment not found'});
+//     }
+//     console.error(err.message);
+//     return res.status(500).send('Server error');
+//   }
+// });
 
 //@ route          Delete api/appointments/user/:appointments_id
 //@descrption      Delete  appointment  by id
@@ -236,7 +239,7 @@ router.delete('/user/:appointment_id', userAuth, async (req, res) => {
     }
 
     //check if User is authorized to cancel this appointment
-    if (appointment.booking.user.toString() !== req.user.id) {
+    if (appointment.booking.user._id.toString() !== req.user.id) {
       return res
         .status(401)
         .json({msg: 'User is not authorized to cancel this appointment'});

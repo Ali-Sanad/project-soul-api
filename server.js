@@ -5,14 +5,14 @@ const app2 = express();
 
 const cors = require('cors');
 const server = require('http').Server(app2);
-const { v4: uuidv4 } = require('uuid');
+const {v4: uuidv4} = require('uuid');
 app2.set('view engine', 'ejs');
 const io = require('socket.io')(server, {
   cors: {
     origin: '*',
   },
 });
-const { ExpressPeerServer } = require('peer');
+const {ExpressPeerServer} = require('peer');
 const peerServer = ExpressPeerServer(server, {
   debug: true,
 });
@@ -27,7 +27,7 @@ app.use(cors());
 // app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.get('/', (req, res) => {
-  res.send({ status: 'API is running' });
+  res.send({status: 'API is running'});
 });
 
 app2.use('/peerjs', peerServer);
@@ -38,7 +38,7 @@ app2.get('/', (req, res) => {
 });
 
 app2.get('/:room', (req, res) => {
-  res.render('room', { roomId: req.params.room });
+  res.render('room', {roomId: req.params.room});
 });
 
 io.on('connection', (socket) => {
@@ -51,8 +51,8 @@ io.on('connection', (socket) => {
   });
 });
 //Init middleware for bodyparser
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 //@define routes
 app.use('/api/auth', require('./routes/auth'));
@@ -69,6 +69,7 @@ app.use('/api/session', require('./routes/video'));
 app.use('/api/conversations', require('./routes/conversation'));
 app.use('/api/messages', require('./routes/message'));
 app.use('/api/posts', require('./routes/posts'));
+app.use('/api/payment', require('./routes/payment'));
 //serve static assets in production
 // if (process.env.NODE_ENV === 'production') {
 //   //set static folder
