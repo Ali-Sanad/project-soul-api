@@ -356,22 +356,31 @@ module.exports.updataTherapist = async (req, res) => {
       url = '';
     } else {
       //cloudinary image upload
+
       const fileStr = req.body.data;
       const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
         upload_preset: 'soul',
       });
-
+      console.log(uploadedResponse);
       url = uploadedResponse.secure_url;
     }
-
+    // req.body.uploadCv = url;
+    // console.log(req.body);
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
-      req.body,
+
+      { req: body, uploadCv: url },
       {
         new: true,
         runValidators: true,
       }
     );
+
+    // const therapist = await Therapist.findOneAndUpdate(
+    //   { _id: req.params.id },
+    //   { $set: req.body },
+    //   { new: true }
+    // );
 
     if (therapist) {
       res.status(200).json({
