@@ -32,7 +32,10 @@ router.post(
 
   therapistProfileController.socialMediaData
 );
-router.patch("/updatatherapist/:id", therapistAuthController.updataTherapist);
+router.patch(
+  "/updatatherapist/:id",
+  therapistProfileController.updataTherapist
+);
 
 router.get(
   "/myprofile",
