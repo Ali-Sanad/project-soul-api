@@ -400,7 +400,7 @@ module.exports.updataTherapist = async (req, res) => {
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
 
-      { req: body, uploadCv: url },
+      { req: req.body, uploadCv: url },
       {
         new: true,
         runValidators: true,
