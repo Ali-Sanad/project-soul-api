@@ -50,17 +50,17 @@ router.post('/', therapistAuth, async (req, res) => {
   timeStyle: "short"
 }).format(new Date(`2021-7-1 ${time} `))*/
 
-  const timeFormatter = (date, time) =>
-    new Intl.DateTimeFormat('en', {
-      timeStyle: 'short',
-    }).format(new Date(`${date} ${time}`));
+  // const timeFormatter = (date, time) =>
+  //   new Intl.DateTimeFormat('en', {
+  //     timeStyle: 'short',
+  //   }).format(new Date(`${date} ${time}`));
 
   try {
     const newAppointment = new Appointment({
       therapist: therapist,
       date: date,
-      from: timeFormatter(date, from),
-      to: timeFormatter(date, to),
+      from: from,
+      to: to,
       ...rest,
     });
 
@@ -89,17 +89,17 @@ router.put('/:appointment_id', therapistAuth, async (req, res) => {
   if (!appointment) {
     return res.status(404).json({msg: 'Appointment not found'});
   }
-  const timeFormatter = (date, time) =>
-    new Intl.DateTimeFormat('en', {
-      timeStyle: 'short',
-    }).format(new Date(`${date} ${time}`));
+  // const timeFormatter = (date, time) =>
+  //   new Intl.DateTimeFormat('en', {
+  //     timeStyle: 'short',
+  //   }).format(new Date(`${date} ${time}`));
 
   // build an appointment fields
   const appointmentFields = {
     therapist: therapist,
     date: !date ? appointment.date : date,
-    from: !from ? appointment.from : timeFormatter(date, from),
-    to: !to ? appointment.to : timeFormatter(date, to),
+    from: !from ? appointment.from : from,
+    to: !to ? appointment.to : to,
     ...rest,
   };
 
