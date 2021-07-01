@@ -3,9 +3,9 @@ const crypto = require('crypto');
 const Therapist = require('../models/TherapistModel');
 const APIFeatures = require('../utils/APIFeatures');
 //const sendEmail = require("../utils/email");
-const {transport} = require('../utils/emails/nodemailer.config');
-const {confirmEmail} = require('../utils/emails/confirm');
-const {resetPassword} = require('../utils/emails/reset-password');
+const { transport } = require('../utils/emails/nodemailer.config');
+const { confirmEmail } = require('../utils/emails/confirm');
+const { resetPassword } = require('../utils/emails/reset-password');
 
 const handleErrors = (err) => {
   let errors = {
@@ -50,7 +50,7 @@ const handleErrors = (err) => {
 
   //validation errors
   if (err.message.includes('Therapist validation failed')) {
-    Object.values(err.errors).forEach(({properties}) => {
+    Object.values(err.errors).forEach(({ properties }) => {
       errors[properties.path] = properties.message;
     });
   } else {
@@ -72,7 +72,7 @@ const createToken = (id) => {
 };
 
 module.exports.signup_post = async (req, res) => {
-  const {fname, lname, email, password, confirmPassword} = req.body;
+  const { fname, lname, email, password, confirmPassword } = req.body;
   try {
     const therapist = await Therapist.create({
       fname,
@@ -102,24 +102,24 @@ module.exports.signup_post = async (req, res) => {
       html: confirmEmail(fname, email, confirmLink),
     });
 
-    res.status(200).json({token});
+    res.status(200).json({ token });
   } catch (err) {
     console.log('catch');
     const errors = handleErrors(err);
     // console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
 module.exports.confirmTherapistEmail = async (req, res) => {
   try {
-    const {token} = req.params;
-    const {therapistId} = await jwt.verify(token, 'mySecretJWT');
+    const { token } = req.params;
+    const { therapistId } = await jwt.verify(token, 'mySecretJWT');
     console.log('therapost', therapistId);
     //    console.log("res", result);
     const therapist = await Therapist.findById(therapistId).select('-password');
     if (!therapist) {
-      return res.status(404).send({msg: 'therapist Not found.'});
+      return res.status(404).send({ msg: 'therapist Not found.' });
     }
 
     //update user email status to active
@@ -140,18 +140,18 @@ module.exports.confirmTherapistEmail = async (req, res) => {
 };
 
 module.exports.login_post = async (req, res) => {
-  const {email, password} = req.body;
+  const { email, password } = req.body;
   try {
     const therapist = await Therapist.login(email, password);
     const token = createToken(therapist._id);
 
-    res.status(200).json({token});
+    res.status(200).json({ token });
   } catch (err) {
     //const errors = handleErrors(err);
     console.log('catch');
     const errors = handleErrors(err);
     console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
@@ -160,14 +160,14 @@ module.exports.forgotPassword = async (req, res) => {
   try {
     console.log('forget');
     //get user baset on posted email
-    const therapist = await Therapist.findOne({email: req.body.email});
+    const therapist = await Therapist.findOne({ email: req.body.email });
     if (!therapist) {
       throw Error('there is no user with email address');
     }
     //generateToken
     const resetToken = therapist.createPasswordResetToken();
     console.log('resttoke', resetToken);
-    await therapist.save({validateBeforeSave: false});
+    await therapist.save({ validateBeforeSave: false });
     // res.status(200).json({ resetToken });
 
     // //send email
@@ -194,7 +194,7 @@ module.exports.forgotPassword = async (req, res) => {
     });
     res
       .status(200)
-      .json({msg: 'Reset password resquest has been sent successfully'});
+      .json({ msg: 'Reset password resquest has been sent successfully' });
     // res.status(200).json({
     //   status: "sucss",
     //   message,
@@ -205,7 +205,7 @@ module.exports.forgotPassword = async (req, res) => {
     //therapist.passwordResetExpires = undefined;
     const errors = handleErrors(err);
     // console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
@@ -220,7 +220,7 @@ module.exports.resetPassword = async (req, res) => {
       .digest('hex');
     const therapist = await Therapist.findOne({
       passwordResetToken: hasedToken,
-      passwordResetExpires: {$gt: Date.now()},
+      passwordResetExpires: { $gt: Date.now() },
     });
     //if token has not expires and ther ie a user  set new password
     if (!therapist) {
@@ -239,17 +239,17 @@ module.exports.resetPassword = async (req, res) => {
 
       const token = createToken(therapist._id);
       console.log('token', therapist);
-      res.status(200).json({token});
+      res.status(200).json({ token });
     }
   } catch (err) {
     const errors = handleErrors(err);
 
-    res.status(400).json({errors, err});
+    res.status(400).json({ errors, err });
   }
 };
 
 module.exports.updatePassword = async (req, res) => {
-  const {password, confirmPassword, currentPassword} = req.body;
+  const { password, confirmPassword, currentPassword } = req.body;
   //get user
   try {
     const therapist = await Therapist.findById(req.therapistId).select(
@@ -277,7 +277,7 @@ module.exports.updatePassword = async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     // console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
@@ -306,7 +306,7 @@ module.exports.getAllTherapists = async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
@@ -342,7 +342,7 @@ module.exports.getOneTherapist = async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
@@ -376,7 +376,7 @@ module.exports.loadTherapist = async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
@@ -400,7 +400,7 @@ module.exports.updataTherapist = async (req, res) => {
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
 
-      { req: body, uploadCv: url },
+      { req: req.body, uploadCv: url },
       {
         new: true,
         runValidators: true,
@@ -425,7 +425,7 @@ module.exports.updataTherapist = async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
 
@@ -445,6 +445,6 @@ module.exports.deleteTherapist = async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
-    res.status(400).json({errors});
+    res.status(400).json({ errors });
   }
 };
