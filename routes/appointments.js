@@ -64,7 +64,7 @@ router.post('/', therapistAuth, async (req, res) => {
     //check for appointment if already exists
     if (
       therapist.appointments.filter(
-        (app) => app.date === date && app.from === from
+        (app) => app.date === date && app.from === from && app.to === to
       ).length > 0
     ) {
       return res.status(400).send({msg: 'This appointment already exists'});
@@ -148,7 +148,7 @@ router.put('/:appointment_id', therapistAuth, async (req, res) => {
     //check for appointment if already exists
     if (
       therapist.appointments.filter(
-        (app) => app.date === date && app.from === from
+        (app) => app.date === date && app.from === from && app.to === to
       ).length > 0
     ) {
       return res.status(400).send({msg: 'This appointment already exists'});
