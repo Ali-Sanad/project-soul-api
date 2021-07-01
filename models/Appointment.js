@@ -43,11 +43,12 @@ const AppointmentSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    zoomString: {
+    zoomLink: {
       type: String,
+      default: '',
     },
   },
-  { timestamps: true }
+  {timestamps: true}
 );
 
 module.exports = mongoose.model('appointment', AppointmentSchema);

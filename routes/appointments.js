@@ -9,6 +9,15 @@ const User = require('../models/User');
 const Therapist = require('../models/TherapistModel');
 const Appointment = require('../models/Appointment');
 
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
+
+const payload = {
+  iss: process.env.APIKey,
+  exp: new Date().getTime() + 5000,
+};
+const ZOOM_TOKEN = jwt.sign(payload, process.env.APISecret);
+
 //************************************ Therapist appointments CRUD  operation ************************* *//
 
 //@ route         GET api/appointments/therapist
@@ -55,12 +64,38 @@ router.post('/', therapistAuth, async (req, res) => {
   //     timeStyle: 'short',
   //   }).format(new Date(`${date} ${time}`));
 
+  //zoop api
+  let axios_options = {
+    url: `https://api.zoom.us/v2/users/${process.env.ZOOM_EMAIL}/meetings/`,
+    method: 'post',
+
+    headers: {
+      Authorization: `Bearer ${ZOOM_TOKEN}`,
+      'User-Agent': 'Zoom-api-Jwt-Request',
+      'content-type': 'application/json',
+    },
+    options: {
+      status: 'active',
+    },
+    json: true,
+
+    data: {
+      start_time: `${date}T${from}:00Z`,
+      duration: 120,
+    },
+  };
+
+  const response = await axios(axios_options);
+  console.log(response.data.join_url);
+  let link = response.data.join_url;
+
   try {
     const newAppointment = new Appointment({
       therapist: therapist,
       date: date,
       from: from,
       to: to,
+      zoomLink: link,
       ...rest,
     });
 
