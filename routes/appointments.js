@@ -80,13 +80,17 @@ router.post('/', therapistAuth, async (req, res) => {
     json: true,
 
     data: {
-      start_time: `${date}T${from}:00Z`,
+      timezone: 'Africa/Cairo',
+      start_time: `${date}T${from}:00`,
       duration: 120,
+      settings: {
+        join_before_host: true,
+      },
     },
   };
 
   const response = await axios(axios_options);
-  console.log(response.data.join_url);
+  console.log(response.data);
   let link = response.data.join_url;
 
   try {
