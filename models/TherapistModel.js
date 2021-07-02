@@ -101,7 +101,7 @@ const TherapistSchema = new mongoose.Schema(
       // required: true,
     },
     birthOfDate: {
-      type: String,
+      type: Date,
       // required: true,
     },
     specialties: {
