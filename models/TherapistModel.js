@@ -94,7 +94,7 @@ const TherapistSchema = new mongoose.Schema(
     },
     licenseNo: {
       type: Number,
-      required: true,
+      // required: true,
     },
     mainsFocus: {
       type: String,
