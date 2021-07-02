@@ -27,9 +27,9 @@ app.use(cors());
 // app.use(express.json({ limit: '50mb' }));
 // app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-app.get('/', (req, res) => {
-  res.send({status: 'API is running'});
-});
+// app.get('/', (req, res) => {
+//   res.send({status: 'API is running'});
+// });
 
 app2.use('/peerjs', peerServer);
 app2.use(express.static('public'));
@@ -76,8 +76,8 @@ app.use('/api/payment', require('./routes/payment'));
 if (process.env.NODE_ENV === 'production') {
   //set static folder
   app.use(express.static(path.join(__dirname, 'build')));
-  app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
   });
 }
 
