@@ -70,14 +70,15 @@ app.use('/api/conversations', require('./routes/conversation'));
 app.use('/api/messages', require('./routes/message'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/payment', require('./routes/payment'));
-//serve static assets in production
-// if (process.env.NODE_ENV === 'production') {
-//   //set static folder
-//   app.use(express.static('client/build'));
-//   app.get('*', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-//   });
-// }
+
+// serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  //set static folder
+  app.use(express.static(path.join(__dirname, 'build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 const PORT2 = process.env.PORT2 || 3030;
