@@ -81,16 +81,20 @@ const TherapistSchema = new mongoose.Schema(
 
     licenseOfOrganization: {
       type: String,
+      required: true,
     },
 
     prefix: {
       type: String,
+      required: true,
     },
     yearsofEeperience: {
       type: Number,
+      required: true,
     },
     licenseNo: {
       type: Number,
+      required: true,
     },
     mainsFocus: {
       type: [String],
@@ -98,6 +102,7 @@ const TherapistSchema = new mongoose.Schema(
     },
     birthOfDate: {
       type: String,
+      required: true,
     },
     specialties: {
       type: [String],
@@ -105,6 +110,7 @@ const TherapistSchema = new mongoose.Schema(
     },
     uploadCv: {
       type: String,
+      required: true,
     },
 
     experience: [
