@@ -382,6 +382,9 @@ module.exports.loadTherapist = async (req, res) => {
 
 module.exports.updataTherapist = async (req, res) => {
   try {
+    console.log(
+      '------------------------------------------- HERE -------------------------------'
+    );
     let url = '';
     if (!req.body.data) {
       url = '';
@@ -397,10 +400,11 @@ module.exports.updataTherapist = async (req, res) => {
     }
     // req.body.uploadCv = url;
     // console.log(req.body);
+    console.log(req.body);
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
 
-      { req: req.body, uploadCv: url },
+      { req: req.body, uploadCv: req.body.uploadCv },
       {
         new: true,
         runValidators: true,
@@ -415,8 +419,8 @@ module.exports.updataTherapist = async (req, res) => {
 
     if (therapist) {
       res.status(200).json({
-        status: 'sucscess',
-
+        status: 'sucscess', // message:"Updated sucessfully "
+        success: true,
         therapist: therapist,
       });
     } else {
@@ -425,7 +429,9 @@ module.exports.updataTherapist = async (req, res) => {
   } catch (err) {
     const errors = handleErrors(err);
     console.log(err);
-    res.status(400).json({ errors });
+    res
+      .status(400)
+      .json({ errors, message: 'Unable to update Therapist', success: false });
   }
 };
 

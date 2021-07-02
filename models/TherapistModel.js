@@ -97,7 +97,7 @@ const TherapistSchema = new mongoose.Schema(
       required: true,
     },
     mainsFocus: {
-      type: [String],
+      type: String,
       required: true,
     },
     birthOfDate: {
@@ -105,12 +105,11 @@ const TherapistSchema = new mongoose.Schema(
       required: true,
     },
     specialties: {
-      type: [String],
+      type: String,
       required: true,
     },
     uploadCv: {
       type: String,
-      required: true,
     },
 
     experience: [
