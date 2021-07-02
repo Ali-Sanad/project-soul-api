@@ -81,32 +81,32 @@ const TherapistSchema = new mongoose.Schema(
 
     licenseOfOrganization: {
       type: String,
-     // required: true,
+      // required: true,
     },
 
     prefix: {
       type: String,
-      //required: true,
+      // required: true,
     },
     yearsofEeperience: {
       type: Number,
-      //required: true,
+      // required: true,
     },
     licenseNo: {
       type: Number,
-      //required: true,
+      // required: true,
     },
     mainsFocus: {
       type: String,
-      //required: true,
+      // required: true,
     },
     birthOfDate: {
       type: String,
-      //required: true,
+      // required: true,
     },
     specialties: {
       type: String,
-     // required: true,
+      // required: true,
     },
     uploadCv: {
       type: String,
@@ -150,7 +150,7 @@ const TherapistSchema = new mongoose.Schema(
         },
       },
     ],
-    socialLinks: {
+    
       twitter: {
         type: String,
       },
@@ -166,7 +166,7 @@ const TherapistSchema = new mongoose.Schema(
       youtube: {
         type: String,
       },
-    },
+    
     appointments: [
       {
         type: mongoose.Schema.Types.ObjectId,

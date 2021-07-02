@@ -385,6 +385,7 @@ module.exports.updataTherapist = async (req, res) => {
     console.log(
       '------------------------------------------- HERE -------------------------------'
     );
+    console.log(req.body)
     let url = '';
     if (!req.body.data) {
       url = '';
@@ -404,7 +405,7 @@ module.exports.updataTherapist = async (req, res) => {
     const therapist = await Therapist.findByIdAndUpdate(
       req.params.id,
 
-      { req: req.body, uploadCv: req.body.uploadCv },
+      req.body,
       {
         new: true,
         runValidators: true,
