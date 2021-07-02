@@ -104,7 +104,7 @@ module.exports.signup_post = async (req, res) => {
 
     res.status(200).json({ status: therapist.status });
   } catch (err) {
-    console.log('catch');
+    console.log('catch');console.log("err",err)
     const errors = handleErrors(err);
     // console.log(err);
     res.status(400).json({ errors });
