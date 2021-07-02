@@ -9,6 +9,15 @@ const User = require('../models/User');
 const Therapist = require('../models/TherapistModel');
 const Appointment = require('../models/Appointment');
 
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
+
+const payload = {
+  iss: process.env.APIKey,
+  exp: new Date().getTime() + 5000,
+};
+const ZOOM_TOKEN = jwt.sign(payload, process.env.APISecret);
+
 //************************************ Therapist appointments CRUD  operation ************************* *//
 
 //@ route         GET api/appointments/therapist
@@ -39,28 +48,72 @@ router.get('/therapist/:therapist_id', async (req, res) => {
 //@descrption      create therapist's appointments
 //@access          private
 router.post('/', therapistAuth, async (req, res) => {
-  const {date, from, to, ...rest} = req.body;
+  try {
+    const {date, from, to, ...rest} = req.body;
 
-  const therapist = await Therapist.findById(req.therapistId);
+    const therapist = await Therapist.findById(req.therapistId).populate(
+      'appointments'
+    );
 
-  if (!therapist || !date || !from || !to)
-    return res.status(400).send({msg: 'Please fill out all the required data'});
+    if (!therapist || !date || !from || !to) {
+      return res
+        .status(400)
+        .send({msg: 'Please fill out all the required data'});
+    }
 
-  /*new Intl.DateTimeFormat("en" , { 
+    //check for appointment if already exists
+    if (
+      therapist.appointments.filter(
+        (app) => app.date === date && app.from === from && app.to === to
+      ).length > 0
+    ) {
+      return res.status(400).send({msg: 'This appointment already exists'});
+    }
+
+    /*new Intl.DateTimeFormat("en" , { 
   timeStyle: "short"
 }).format(new Date(`2021-7-1 ${time} `))*/
 
-  // const timeFormatter = (date, time) =>
-  //   new Intl.DateTimeFormat('en', {
-  //     timeStyle: 'short',
-  //   }).format(new Date(`${date} ${time}`));
+    // const timeFormatter = (date, time) =>
+    //   new Intl.DateTimeFormat('en', {
+    //     timeStyle: 'short',
+    //   }).format(new Date(`${date} ${time}`));
 
-  try {
+    //zoop api
+    let axios_options = {
+      url: `https://api.zoom.us/v2/users/${process.env.ZOOM_EMAIL}/meetings/`,
+      method: 'post',
+
+      headers: {
+        Authorization: `Bearer ${ZOOM_TOKEN}`,
+        'User-Agent': 'Zoom-api-Jwt-Request',
+        'content-type': 'application/json',
+      },
+      options: {
+        status: 'active',
+      },
+      json: true,
+
+      data: {
+        timezone: 'Africa/Cairo',
+        start_time: `${date}T${from}:00`,
+        duration: 120,
+        settings: {
+          join_before_host: true,
+        },
+      },
+    };
+
+    const response = await axios(axios_options);
+    console.log(response.data);
+    let link = response.data.join_url;
+
     const newAppointment = new Appointment({
       therapist: therapist,
       date: date,
       from: from,
       to: to,
+      zoomLink: link,
       ...rest,
     });
 
@@ -82,28 +135,38 @@ router.post('/', therapistAuth, async (req, res) => {
 router.put('/:appointment_id', therapistAuth, async (req, res) => {
   const {appointment_id} = req.params;
   const {date, from, to, ...rest} = req.body;
-
-  const therapist = await Therapist.findById(req.therapistId);
-
-  const appointment = await Appointment.findById(appointment_id);
-  if (!appointment) {
-    return res.status(404).json({msg: 'Appointment not found'});
-  }
-  // const timeFormatter = (date, time) =>
-  //   new Intl.DateTimeFormat('en', {
-  //     timeStyle: 'short',
-  //   }).format(new Date(`${date} ${time}`));
-
-  // build an appointment fields
-  const appointmentFields = {
-    therapist: therapist,
-    date: !date ? appointment.date : date,
-    from: !from ? appointment.from : from,
-    to: !to ? appointment.to : to,
-    ...rest,
-  };
-
   try {
+    const therapist = await Therapist.findById(req.therapistId).populate(
+      'appointments'
+    );
+
+    const appointment = await Appointment.findById(appointment_id);
+    if (!appointment) {
+      return res.status(404).json({msg: 'Appointment not found'});
+    }
+
+    //check for appointment if already exists
+    if (
+      therapist.appointments.filter(
+        (app) => app.date === date && app.from === from && app.to === to
+      ).length > 0
+    ) {
+      return res.status(400).send({msg: 'This appointment already exists'});
+    }
+    // const timeFormatter = (date, time) =>
+    //   new Intl.DateTimeFormat('en', {
+    //     timeStyle: 'short',
+    //   }).format(new Date(`${date} ${time}`));
+
+    // build an appointment fields
+    const appointmentFields = {
+      therapist: therapist,
+      date: !date ? appointment.date : date,
+      from: !from ? appointment.from : from,
+      to: !to ? appointment.to : to,
+      ...rest,
+    };
+
     //upsert creates new doc if no match is found
     const updatedAppointment = await Appointment.findOneAndUpdate(
       {_id: appointment_id},
