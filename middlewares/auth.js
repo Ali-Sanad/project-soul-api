@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('config');
+require('dotenv').config();
 
 module.exports.userAuth = async (req, res, next) => {
   //get token from header
@@ -12,7 +12,7 @@ module.exports.userAuth = async (req, res, next) => {
 
   //verify token and unlock the payload(decoded)
   try {
-    const decoded = jwt.verify(token, config.get('jwtSecret'));
+    const decoded = jwt.verify(token, process.env.jwtSecret);
 
     //assign the payload(decoded)=> to req.user
     req.user = decoded.user;
@@ -35,12 +35,12 @@ module.exports.adminAuth = async (req, res, next) => {
 
   //verify token and unlock the payload(decoded)
   try {
-    const decoded = jwt.verify(token, config.get('jwtSecret'));
+    const decoded = jwt.verify(token, process.env.jwtSecret);
 
     //assign the payload(decoded)=> to req.user
     req.user = decoded.user;
 
-     if (!req.user.isAdmin) return res.status(400).json({msg: 'UnAuthorized'});
+    if (!req.user.isAdmin) return res.status(400).json({msg: 'UnAuthorized'});
 
     next();
   } catch (error) {

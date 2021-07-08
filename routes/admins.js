@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const config = require('config');
+require('dotenv').config();
 const {check, validationResult} = require('express-validator');
 
 const User = require('../models/User');
@@ -13,7 +13,7 @@ const {userAuth, adminAuth} = require('../middlewares/auth');
 //@access          Public
 router.post(
   '/',
-  [ 
+  [
     check('name', 'Name is required').notEmpty(),
     check('email', 'Please enter a valid email').isEmail(),
     check('password', 'Password should be 6 characters or more').isLength({
@@ -26,7 +26,7 @@ router.post(
       return res.status(400).json({errors: errors.array()});
     }
 
-    const {name, email, password,...rest} = req.body;
+    const {name, email, password, ...rest} = req.body;
     try {
       //see if admin exist
       let user = await User.findOne({email});
@@ -39,7 +39,7 @@ router.post(
         email,
         password,
         isAdmin: true,
-        ...rest
+        ...rest,
       });
 
       //encrypt password
@@ -57,7 +57,7 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get('jwtSecret'),
+        process.env.jwtSecret,
         {expiresIn: 36000},
         (err, token) => {
           if (err) throw err;
@@ -84,14 +84,12 @@ router.get('/users', adminAuth, async (req, res) => {
   }
 });
 
-
-
 //@ route         GET api/admins/user/:user_id
 //@descrption      get user by user_id
 //@access          private
 router.get('/user/:user_id', adminAuth, async (req, res) => {
   try {
-    const user = await User.findById(req.params.user_id)
+    const user = await User.findById(req.params.user_id);
 
     if (!user) return res.status(400).json({msg: 'User not found'});
     res.json(user);

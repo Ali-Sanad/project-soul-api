@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+require('dotenv').config();
 const {check, validationResult} = require('express-validator');
 
 const {userAuth} = require('../middlewares/auth');

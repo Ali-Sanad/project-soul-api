@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const config = require('config');
 require('dotenv').config();
 const {check, validationResult} = require('express-validator');
 const {transport} = require('../utils/emails/nodemailer.config');
@@ -31,7 +30,7 @@ router.post(
       return res.status(400).json({errors: errors.array()});
     }
 
-    let {name, email, password,...rest} = req.body;
+    let {name, email, password, ...rest} = req.body;
     try {
       //see if user exist
       let user = await User.findOne({email});
@@ -49,7 +48,7 @@ router.post(
         name: name,
         email: email,
         password: password,
-        ...rest
+        ...rest,
       });
 
       //return JWT
@@ -61,7 +60,7 @@ router.post(
       };
 
       //create token
-      const token = jwt.sign(payload, config.get('jwtSecret'));
+      const token = jwt.sign(payload, process.env.jwtSecret);
       const confirmLink = `${process.env.API_URI}/api/users/confirm-user-email/${token}`;
       //send email to complete regiseration
       await transport.sendMail({
@@ -89,7 +88,7 @@ router.get('/confirm-user-email/:token', async (req, res) => {
     //token ==> user:{id,isAdmin}
     const {
       user: {id},
-    } = await jwt.verify(token, config.get('jwtSecret'));
+    } = await jwt.verify(token, process.env.jwtSecret);
     const user = await User.findById(id).select('-password');
     if (!user) {
       return res.status(404).send({msg: 'User Not found.'});
@@ -192,7 +191,7 @@ router.post('/forgot-password', async (req, res) => {
     };
 
     //create token that expires after 60 mins
-    const token = jwt.sign(payload, config.get('jwtSecret'), {
+    const token = jwt.sign(payload, process.env.jwtSecret, {
       expiresIn: 60 * 60,
     });
 
